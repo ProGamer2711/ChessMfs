@@ -29,7 +29,7 @@ void writeToFile(char *fileName, byte *seed, byte **moves, size_t movesSize)
     for (size_t i = 0; i < movesSize; i++)
     {
         byte *move = moves[i];
-        if (fwrite(move, sizeof(byte), 3, file) != 3)
+        if (fwrite(move, sizeof(byte), 4, file) != 4)
         {
             perror("Failed to write move to file");
             fclose(file);
@@ -43,9 +43,9 @@ void writeToFile(char *fileName, byte *seed, byte **moves, size_t movesSize)
 int main()
 {
     byte seed[9] = {3, 0, 0, 0, 1, 0, 2, 1, 0};
-    byte move1[] = {0, 0, 0};
-    byte move2[] = {1, 1, 1};
-    byte move3[] = {2, 2, 2};
+    byte move1[] = {0, 0, 0, 1};
+    byte move2[] = {1, 1, 1, 2};
+    byte move3[] = {2, 2, 2, 1};
     byte *moves[] = {move1,
                      move2,
                      move3};
