@@ -25,3 +25,5 @@ void printHorizontalNumbers(byte boardSize);
 void printBoardAsTable(byte **board, byte boardSize);
 
 void printBoard(byte **board, byte boardSize);
+
+void runChessGame(byte boardSize);

@@ -3,6 +3,75 @@
 #include <stdio.h>
 
 #include "Menu.h"
+#include "Vector.h"
+
+Piece *createPiece(byte x, byte y, byte type) {
+    Piece *piece = (Piece *)malloc(sizeof(Piece));
+
+    if (piece == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    piece->x = x;
+    piece->y = y;
+    piece->type = type;
+
+    return piece;
+}
+
+// it is simpler to keep this a 2D array and not a vector
+byte **generateBoard(byte boardSize) {
+    if (boardSize > MAX_BOARD_SIZE) {
+        printf("Board size is too large\n");
+        exit(1);
+    }
+
+    byte **board = (byte **)calloc(boardSize, sizeof(byte *));
+
+    if (board == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    for (byte i = 0; i < boardSize; i++) {
+        board[i] = (byte *)calloc(boardSize, sizeof(byte));
+
+        if (board[i] == NULL) {
+            printf("Memory allocation failed\n");
+            exit(1);
+        }
+    }
+
+    return board;
+}
+
+void freeBoard(byte **board, byte boardSize) {
+    for (byte i = 0; i < boardSize; i++) {
+        free(board[i]);
+    }
+
+    free(board);
+}
+
+void placePiecesRandomly(byte **board, byte boardSize, Vector *pieces) {
+    for (byte i = 0; i < pieces->length; i++) {
+        Piece *currentPiece = pieces->get(pieces, i);
+
+        byte x = rand() % boardSize;
+        byte y = rand() % boardSize;
+
+        while (board[x][y] != EMPTY_SPACE) {
+            x = rand() % boardSize;
+            y = rand() % boardSize;
+        }
+
+        currentPiece->x = x;
+        currentPiece->y = y;
+
+        board[x][y] = currentPiece->type;
+    }
+}
 
 void printCell(byte cell) {
     switch (cell) {
@@ -116,4 +185,30 @@ void printBoard(byte **board, byte boardSize) {
 
         printBoardAsSimplifiedTable(board, boardSize);
     }
+}
+
+void runChessGame(byte boardSize) {
+    byte **board = generateBoard(boardSize);
+
+    // use the pieces struct
+    Vector *pieces = initVector();
+
+    pieces->push(pieces, createPiece(0, 0, WHITE_KING));
+    pieces->push(pieces, createPiece(0, 0, WHITE_ROOK_1));
+    pieces->push(pieces, createPiece(0, 0, WHITE_ROOK_2));
+    pieces->push(pieces, createPiece(0, 0, BLACK_KING));
+
+    placePiecesRandomly(board, boardSize, pieces);
+
+    printBoard(board, boardSize);
+
+    // more stuff here
+
+    freeBoard(board, boardSize);
+
+    for (int i = 0; i < pieces->length; i++) {
+        free(pieces->get(pieces, i));
+    }
+
+    freeVector(pieces);
 }
