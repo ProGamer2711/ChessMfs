@@ -6,6 +6,7 @@
 		"stdlib.h": "c",
 		"menuutils.h": "c",
 		"mainmenu.h": "c",
-		"constants.h": "c"
+		"constants.h": "c",
+		"menu.h": "c"
 	}
 }

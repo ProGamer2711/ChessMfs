@@ -4,11 +4,13 @@
 
 // ! Change the paths of .h
 #include "ChessUtils.c"
-#include "MainMenu.c"
+#include "Menu.c"
+#include "Vector.c"
 
 // ? Should this be a global variable?
 byte currentBoardSize = 8;
 
+// it is simpler to keep this a 2D array and not a vector
 byte **generateBoard(byte boardSize) {
     if (boardSize > MAX_BOARD_SIZE) {
         printf("Board size is too large\n");
@@ -42,10 +44,8 @@ void freeBoard(byte **board, byte boardSize) {
     free(board);
 }
 
-void placePiecesRandomly(byte **board, byte boardSize) {
-    byte placed[] = {WHITE_KING, WHITE_ROOK, BLACK_KING, WHITE_ROOK};
-
-    for (byte i = 0; i < 4; i++) {
+void placePiecesRandomly(byte **board, byte boardSize, byte *pieces, byte piecesLength) {
+    for (byte i = 0; i < piecesLength; i++) {
         byte x = rand() % boardSize;
         byte y = rand() % boardSize;
 
@@ -54,7 +54,7 @@ void placePiecesRandomly(byte **board, byte boardSize) {
             y = rand() % boardSize;
         }
 
-        board[x][y] = placed[i];
+        board[x][y] = pieces[i];
     }
 }
 
@@ -87,7 +87,12 @@ void writeToFile(char *fileName, byte *seed, byte **moves, size_t movesSize) {
 void newGame() {
     byte **board = generateBoard(currentBoardSize);
 
-    placePiecesRandomly(board, currentBoardSize);
+    // ! I chose to use an array because if I used a Vector, I would need to cast to void*
+    // ? Maybe make it a global variable?
+    byte piecesToPlaceLength = 4;
+    byte piecesToPlace[] = {WHITE_KING, WHITE_ROOK_1, WHITE_ROOK_2, BLACK_KING};
+
+    placePiecesRandomly(board, currentBoardSize, piecesToPlace, piecesToPlaceLength);
 
     printBoard(board, currentBoardSize);
 

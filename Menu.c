@@ -1,9 +1,11 @@
-#include "MainMenu.h"
+#include "Menu.h"
+
+#include <stdio.h>
+
+#include "Constants.h"
 
 void clearScreen() {
-    // ANSI escape codes to clear the screen and move the cursor to the top-left
-    // aka magic
-    printf("\033[H\033[J");
+    system(CLEAR_COMMAND);
 }
 
 void waitForEnter() {
