@@ -1,9 +1,13 @@
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#include "ChessUtils.h"
+// ! Change the paths of .h
+#include "ChessUtils.c"
+#include "MainMenu.c"
+
+// ? Should this be a global variable?
+byte currentBoardSize = 8;
 
 byte **generateBoard(byte boardSize) {
     if (boardSize > MAX_BOARD_SIZE) {
@@ -28,6 +32,14 @@ byte **generateBoard(byte boardSize) {
     }
 
     return board;
+}
+
+void freeBoard(byte **board, byte boardSize) {
+    for (byte i = 0; i < boardSize; i++) {
+        free(board[i]);
+    }
+
+    free(board);
 }
 
 void placePiecesRandomly(byte **board, byte boardSize) {
@@ -72,7 +84,68 @@ void writeToFile(char *fileName, byte *seed, byte **moves, size_t movesSize) {
     fclose(file);
 }
 
+void newGame() {
+    byte **board = generateBoard(currentBoardSize);
+
+    placePiecesRandomly(board, currentBoardSize);
+
+    printBoard(board, currentBoardSize);
+
+    freeBoard(board, currentBoardSize);
+}
+
+void changeBoardSize() {
+    // ? Should we clear the screen here?
+    // clearScreen();
+
+    byte newBoardSize;
+
+    printf("Enter new board size: ");
+    scanf("%hhu", &newBoardSize);
+
+    if (newBoardSize < 3 || newBoardSize > MAX_BOARD_SIZE) {
+        printf("Invalid board size\n");
+    } else {
+        currentBoardSize = newBoardSize;
+    }
+}
+
+void replayGame() {
+    clearScreen();
+
+    printf("Enter file name: ");
+
+    char fileName[100];
+    fgets(fileName, 100, stdin);
+
+    // ! Nathaniel go brr...
+}
+
+void executeSelection(byte selection) {
+    switch (selection) {
+        case 1:
+            newGame();
+            break;
+        case 2:
+            changeBoardSize();
+            break;
+        case 3:
+            replayGame();
+            break;
+        case 4:
+            exit(0);
+            break;
+        default:
+            printf("Invalid selection\n");
+            break;
+    }
+
+    waitForEnter();
+}
+
 int main() {
+    srand(time(NULL));
+
     // byte seed[9] = {3, 0, 0, 0, 1, 0, 2, 1, 0};
     // byte move1[] = {0, 0, 0};
     // byte move2[] = {1, 1, 1};
@@ -83,15 +156,7 @@ int main() {
 
     // writeToFile("replay.bin", seed, moves, 3);
 
-    srand(time(NULL));
-
-    byte boardSize = 20;
-
-    byte **board = generateBoard(boardSize);
-
-    placePiecesRandomly(board, boardSize);
-
-    printBoard(board, boardSize);
+    runMainMenu(executeSelection);
 
     return 0;
 }
