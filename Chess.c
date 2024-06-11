@@ -1,4 +1,4 @@
-#include "ChessUtils.h"
+#include "Chess.h"
 
 #include <stdio.h>
 

@@ -3,9 +3,9 @@
 #include <time.h>
 
 // ! Change the paths of .h
-#include "ChessUtils.c"
+#include "Chess.c"
+#include "Constants.h"
 #include "Menu.c"
-#include "Vector.c"
 
 // ? Should this be a global variable?
 byte currentBoardSize = 8;

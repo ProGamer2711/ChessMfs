@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Constants.h"
-
 typedef void *TYPE;
 
 typedef struct Vector Vector;

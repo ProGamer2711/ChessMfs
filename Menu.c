@@ -2,8 +2,6 @@
 
 #include <stdio.h>
 
-#include "Constants.h"
-
 void clearScreen() {
     system(CLEAR_COMMAND);
 }
