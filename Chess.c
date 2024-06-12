@@ -61,6 +61,7 @@ void placePiecesRandomly(byte **board, byte boardSize, Vector *pieces) {
         byte x = rand() % boardSize;
         byte y = rand() % boardSize;
 
+        // ! Check validity of the placement
         while (board[x][y] != EMPTY_SPACE) {
             x = rand() % boardSize;
             y = rand() % boardSize;
@@ -175,6 +176,10 @@ void printBoard(byte **board, byte boardSize) {
     printf("You play as white\n");
     printf("White pieces have uppercase letters\n");
     printf("Black pieces have lowercase letters\n");
+    printf("White king: KG\n");
+    printf("White rook 1: R1\n");
+    printf("White rook 2: R2\n");
+    printf("Black king: kg\n");
 
     if (boardSize <= 20) {
         printf("\n");

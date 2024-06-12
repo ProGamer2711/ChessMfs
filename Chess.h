@@ -2,27 +2,20 @@
 
 #include "Constants.h"
 
+// Could be any size but the best experience is up to 50
 #define MAX_BOARD_SIZE 50
 
 #define EMPTY_SPACE 0
-#define WHITE_KING 1
-#define WHITE_ROOK_1 2
-#define WHITE_ROOK_2 3
-#define BLACK_KING 4
+#define POSSIBLE_MOVE 1
+#define WHITE_KING 2
+#define WHITE_ROOK_1 3
+#define WHITE_ROOK_2 4
+#define BLACK_KING 5
 
 typedef struct Piece {
-    byte x;
-    byte y;
+    Coordinate;
     byte type;
 } Piece;
-
-void printCell(byte cell);
-
-void printHorizontalBorder(byte boardSize);
-
-void printHorizontalNumbers(byte boardSize);
-
-void printBoardAsTable(byte **board, byte boardSize);
 
 void printBoard(byte **board, byte boardSize);
 
