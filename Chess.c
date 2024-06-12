@@ -79,6 +79,9 @@ void printCell(byte cell) {
         case EMPTY_SPACE:
             printf("  ");
             break;
+        case POSSIBLE_MOVE:
+            printf("()");
+            break;
         case WHITE_KING:
             printf("KG");
             break;
