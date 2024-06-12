@@ -13,7 +13,7 @@
 #define BLACK_KING 5
 
 typedef struct Piece {
-    Coordinate;
+    Coordinate position;
     byte type;
 } Piece;
 

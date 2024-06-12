@@ -13,8 +13,8 @@ Piece *createPiece(byte x, byte y, byte type) {
         exit(1);
     }
 
-    piece->x = x;
-    piece->y = y;
+    piece->position.x = x;
+    piece->position.y = y;
     piece->type = type;
 
     return piece;
@@ -67,8 +67,8 @@ void placePiecesRandomly(byte **board, byte boardSize, Vector *pieces) {
             y = rand() % boardSize;
         }
 
-        currentPiece->x = x;
-        currentPiece->y = y;
+        currentPiece->position.x = x;
+        currentPiece->position.y = y;
 
         board[x][y] = currentPiece->type;
     }
