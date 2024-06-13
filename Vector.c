@@ -42,6 +42,22 @@ TYPE pop(Vector *vector) {
     return value;
 }
 
+TYPE popIndex(Vector *vector, unsigned int index) {
+    if (index < 0 || index >= vector->length) {
+        printf("Invalid index; Exiting...\n");
+        exit(1);
+    }
+
+    TYPE popped=vector->data[index];
+    vector->length--;
+    for(int i=index;i<vector->length;i++)
+    {
+        vector->data[i]=vector->data[i+1];
+    }
+    
+    return popped;
+}
+
 TYPE get(Vector *vector, unsigned int index) {
     if (index < 0 || index >= vector->length) {
         printf("Invalid index; Exiting...\n");
@@ -77,6 +93,7 @@ Vector *initVector() {
     vector->push = push;
     vector->pop = pop;
     vector->get = get;
+    vector->popIndex = popIndex;
 
     return vector;
 }

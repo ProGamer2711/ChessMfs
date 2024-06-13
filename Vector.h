@@ -11,10 +11,9 @@ struct Vector {
 
     // functions
     void (*push)(Vector *vector, TYPE value);
-    TYPE(*pop)
-    (Vector *vector);
-    TYPE(*get)
-    (Vector *vector, unsigned int index);
+    TYPE (*pop) (Vector *vector);
+    TYPE (*get) (Vector *vector, unsigned int index);
+    TYPE (* popIndex) (struct Vector* self, unsigned int index);
 };
 
 Vector *initVector();
