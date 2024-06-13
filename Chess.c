@@ -254,7 +254,7 @@ void printBoardAsSimplifiedTable(Vector *board) {
 }
 
 void printBoard(Vector *board) {
-    clearScreen();
+    // clearScreen();
 
     printf("You play as white\n");
     printf("White pieces have uppercase letters\n");
@@ -496,11 +496,10 @@ void placePiecesRandomly(Vector *board, Vector *pieces) {
                 continue;
             }
 
-            currentPiece->tile->piece = NULL;
             currentPiece->tile = currentTile;
         } while (currentTile->piece != NULL || (currentPiece->type == KING && isInCheck(pieces, currentPiece, board)));
 
-        currentPiece->tile->piece = NULL;
+        // printf("%d %d\n",x,y);
         currentPiece->tile = currentTile;
         currentTile->piece = currentPiece;
     }
@@ -513,8 +512,8 @@ void runChessGame(byte boardSize) {
 
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_2, 1));
-    pieces->push(pieces, createPiece(board, 0, 0, KING, 1));
     pieces->push(pieces, createPiece(board, 0, 0, KING, 0));
+    pieces->push(pieces, createPiece(board, 0, 0, KING, 1));
 
     // testing positions
     // pieces->push(pieces, createPiece(board, 5, 4, ROOK_1, 1));

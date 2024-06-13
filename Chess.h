@@ -3,8 +3,8 @@
 #include "Constants.h"
 #include "Vector.h"
 
-// Board size can't be less than 3 for 4 pieces because of placement
-#define MIN_BOARD_SIZE 3
+// Board size can't be less than 4 for 4 pieces because of placement
+#define MIN_BOARD_SIZE 4
 // Could be any size but the best experience is up to 50
 #define MAX_BOARD_SIZE 50
 
