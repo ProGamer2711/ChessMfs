@@ -1,24 +1,11 @@
 #include "Chess.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-#include "Menu.h"
-#include "Vector.h"
-
-Piece *createPiece(byte x, byte y, byte type) {
-    Piece *piece = (Piece *)malloc(sizeof(Piece));
-
-    if (piece == NULL) {
-        printf("Memory allocation failed\n");
-        exit(1);
-    }
-
-    piece->position.x = x;
-    piece->position.y = y;
-    piece->type = type;
-
-    return piece;
-}
+#include "Menu.c"
+#include "Vector.c"
 
 // ! Move this later
 Coordinate *createCoordinate(byte x, byte y) {
@@ -35,30 +22,66 @@ Coordinate *createCoordinate(byte x, byte y) {
     return coordinate;
 }
 
-// it is simpler to keep this a 2D array and not a vector
-byte **generateBoard(byte boardSize) {
-    if (boardSize > MAX_BOARD_SIZE) {
-        printf("Board size is too large\n");
-        exit(1);
-    }
+Tile *createTile(TileType type, byte x, byte y) {
+    Tile *tile = (Tile *)malloc(sizeof(Tile));
 
-    byte **board = (byte **)calloc(boardSize, sizeof(byte *));
-
-    if (board == NULL) {
+    if (tile == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
 
-    for (byte i = 0; i < boardSize; i++) {
-        board[i] = (byte *)calloc(boardSize, sizeof(byte));
+    tile->position.x = x;
+    tile->position.y = y;
+    tile->type = type;
+    tile->piece = NULL;
 
-        if (board[i] == NULL) {
-            printf("Memory allocation failed\n");
-            exit(1);
+    return tile;
+}
+
+Vector *generateBoard(byte boardSize) {
+    if (boardSize < MIN_BOARD_SIZE || boardSize > MAX_BOARD_SIZE) {
+        printf("Invalid board size\n");
+        exit(1);
+    }
+
+    Vector *board = initVector();
+
+    for (byte i = 0; i < boardSize; i++) {
+        Vector *row = initVector();
+
+        for (byte j = 0; j < boardSize; j++) {
+            row->push(row, createTile(NORMAL, i, j));
         }
+
+        board->push(board, row);
     }
 
     return board;
+}
+
+Tile *getTileFromBoard(Vector *board, byte x, byte y) {
+    Vector *row = board->get(board, x);
+    Tile *tile = row->get(row, y);
+
+    return tile;
+}
+
+Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite) {
+    Piece *piece = (Piece *)malloc(sizeof(Piece));
+
+    if (piece == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    piece->tile = getTileFromBoard(board, x, y);
+    piece->type = type;
+    piece->isWhite = isWhite;
+
+    // ! used for debugging
+    // piece->tile->piece = piece;
+
+    return piece;
 }
 
 byte isOutOfBounds(Coordinate coordinate, byte boardSize) {
@@ -77,57 +100,79 @@ byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
     return 0;
 }
 
-void freeBoard(byte **board, byte boardSize) {
-    for (byte i = 0; i < boardSize; i++) {
-        free(board[i]);
+void printTile(Tile *tile) {
+    if (tile->type == POSSIBLE_MOVE) {
+        printf("(");
+    } else {
+        printf(" ");
     }
 
-    free(board);
-}
-
-void placePiecesRandomly(byte **board, byte boardSize, Vector *pieces) {
-    for (byte i = 0; i < pieces->length; i++) {
-        Piece *currentPiece = pieces->get(pieces, i);
-
-        byte x = rand() % boardSize;
-        byte y = rand() % boardSize;
-
-        // ! Check validity of the placement
-        while (board[x][y] != EMPTY_SPACE) {
-            x = rand() % boardSize;
-            y = rand() % boardSize;
+    if (tile->piece == NULL) {
+        printf("  ");
+    } else if (tile->piece->isWhite) {
+        switch (tile->piece->type) {
+            case KING:
+                printf("KG");
+                break;
+            case ROOK_1:
+                printf("R1");
+                break;
+            case ROOK_2:
+                printf("R2");
+                break;
+            default:
+                printf("??");
+                break;
         }
+    } else {
+        switch (tile->piece->type) {
+            case KING:
+                printf("kg");
+                break;
+            // rooks are not needed here
+            default:
+                printf("??");
+                break;
+        }
+    }
 
-        currentPiece->position.x = x;
-        currentPiece->position.y = y;
-
-        board[x][y] = currentPiece->type;
+    if (tile->type == POSSIBLE_MOVE) {
+        printf(")");
+    } else {
+        printf(" ");
     }
 }
 
-void printCell(byte cell) {
-    switch (cell) {
-        case EMPTY_SPACE:
-            printf("  ");
-            break;
-        case POSSIBLE_MOVE:
-            printf("()");
-            break;
-        case WHITE_KING:
-            printf("KG");
-            break;
-        case WHITE_ROOK_1:
-            printf("R1");
-            break;
-        case WHITE_ROOK_2:
-            printf("R2");
-            break;
-        case BLACK_KING:
-            printf("kg");
-            break;
-        default:
-            printf("??");
-            break;
+// If you use the simplified table
+// you will not see your possible moves
+void printTileSimplified(Tile *tile) {
+    if (tile->piece == NULL) {
+        printf("--");
+    } else if (tile->piece->isWhite) {
+        switch (tile->piece->type) {
+            case KING:
+                printf("KG");
+                break;
+            case ROOK_1:
+                printf("R1");
+                break;
+            case ROOK_2:
+                printf("R2");
+                break;
+            default:
+                printf("??");
+                break;
+        }
+    } else {
+        switch (tile->piece->type) {
+            case KING:
+                printf("kg");
+                break;
+            // rooks are not needed here
+            default:
+                printf("??");
+                break;
+        }
     }
 }
 
@@ -148,51 +193,55 @@ void printHorizontalNumbers(byte boardSize) {
     printf("|\n");
 }
 
-void printBoardAsTable(byte **board, byte boardSize) {
-    printHorizontalBorder(boardSize + 1);
+void printBoardAsTable(Vector *board) {
+    printHorizontalBorder(board->length + 1);
 
-    printHorizontalNumbers(boardSize);
+    printHorizontalNumbers(board->length);
 
-    for (byte i = 0; i < boardSize; i++) {
+    for (byte i = 0; i < board->length; i++) {
         // top border
-        printHorizontalBorder(boardSize + 1);
+        printHorizontalBorder(board->length + 1);
 
         // add the actual cells
-        for (byte j = 0; j < boardSize; j++) {
+        for (byte j = 0; j < board->length; j++) {
             // print the index as a cell before that
             if (j == 0) {
                 printf("| %02d ", i + 1);
             }
 
-            printf("| ");
-            printCell(board[i][j]);
-            printf(" ");
+            printf("|");
+
+            Tile *currentTile = getTileFromBoard(board, i, j);
+
+            printTile(currentTile);
         }
         printf("|\n");
     }
 
     // bottom border
-    printHorizontalBorder(boardSize + 1);
+    printHorizontalBorder(board->length + 1);
 }
 
-void printBoardAsSimplifiedTable(byte **board, byte boardSize) {
-    for (byte i = 0; i < boardSize; i++) {
+void printBoardAsSimplifiedTable(Vector *board) {
+    for (byte i = 0; i < board->length; i++) {
         // print the top numbers
         if (i == 0) {
-            for (byte j = 0; j < boardSize + 1; j++) {
+            for (byte j = 0; j < board->length + 1; j++) {
                 printf("%02d ", j);
             }
             printf("\n");
         }
 
-        for (byte j = 0; j < boardSize; j++) {
+        for (byte j = 0; j < board->length; j++) {
             // print the index
             if (j == 0) {
                 printf("%02d ", i + 1);
             }
 
-            if (board[i][j] != EMPTY_SPACE) {
-                printCell(board[i][j]);
+            Tile *currentTile = getTileFromBoard(board, i, j);
+
+            if (currentTile->piece != NULL) {
+                printTileSimplified(currentTile);
             } else {
                 printf("--");
             }
@@ -204,8 +253,8 @@ void printBoardAsSimplifiedTable(byte **board, byte boardSize) {
     }
 }
 
-void printBoard(byte **board, byte boardSize) {
-    clearScreen();
+void printBoard(Vector *board) {
+    // clearScreen();
 
     printf("You play as white\n");
     printf("White pieces have uppercase letters\n");
@@ -215,86 +264,101 @@ void printBoard(byte **board, byte boardSize) {
     printf("White rook 2: R2\n");
     printf("Black king: kg\n");
 
-    if (boardSize <= 20) {
+    if (board->length <= 20) {
         printf("\n");
 
-        printBoardAsTable(board, boardSize);
+        printBoardAsTable(board);
     } else {
         printf("Empty spaces are marked with --\n\n");
 
-        printBoardAsSimplifiedTable(board, boardSize);
+        printBoardAsSimplifiedTable(board);
     }
 }
 
-Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
+Vector *getPossibleMoves(Piece *piece, Vector *board) {
     Vector *possibleMoves = initVector();
 
-    if (piece->type == WHITE_ROOK_1 || piece->type == WHITE_ROOK_2) {
+    if (piece->type == ROOK_1 || piece->type == ROOK_2) {
         // left movement
-        Coordinate newCoordinate = piece->position;
+        Coordinate newCoordinate = piece->tile->position;
         // we do these offsets to avoid the piece itself
         newCoordinate.x--;
 
-        while (!isOutOfBounds(newCoordinate, boardSize)) {
-
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
 
-            if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) { // We will check if we can take piece later
-                break;
+            Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
+
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
+                newCoordinate.x--;
+
+                continue;
             }
 
-            newCoordinate.x--;
+            break;
         }
 
         // right movement
-        newCoordinate = piece->position;
+        newCoordinate = piece->tile->position;
         newCoordinate.x++;
 
-        while (!isOutOfBounds(newCoordinate, boardSize)) {
-
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
-            if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) {
-                break;
+
+            Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
+
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
+                newCoordinate.x++;
+
+                continue;
             }
 
-            newCoordinate.x++;
+            break;
         }
 
         // up movement
-        newCoordinate = piece->position;
+        newCoordinate = piece->tile->position;
         newCoordinate.y--;
 
-        while (!isOutOfBounds(newCoordinate, boardSize)) {
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
 
-            if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) {
-                break;
+            Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
+
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
+                newCoordinate.y--;
+
+                continue;
             }
 
-            newCoordinate.y--;
+            break;
         }
 
         // down movement
-        newCoordinate = piece->position;
+        newCoordinate = piece->tile->position;
         newCoordinate.y++;
 
-        while (!isOutOfBounds(newCoordinate, boardSize)) {
-
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
-            if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) {
-                break;
+
+            Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
+
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
+                newCoordinate.y++;
+
+                continue;
             }
 
-            newCoordinate.y++;
+            break;
         }
-    } else if (piece->type == BLACK_KING || piece->type == WHITE_KING) {
-
-        //must be short or else we might have an underflow
-        for (short i = piece->position.x - 1; i <= piece->position.x + 1; i++) {
-            for (short j = piece->position.y - 1; j <= piece->position.y + 1; j++) {
+    } else if (piece->type == KING) {
+        // must be short or else we might have an underflow
+        // ! try and convert to something else and not short
+        for (short i = piece->tile->position.x - 1; i <= piece->tile->position.x + 1; i++) {
+            for (short j = piece->tile->position.y - 1; j <= piece->tile->position.y + 1; j++) {
                 Coordinate *newCoordinate = createCoordinate(i, j);
 
-                if (isOutOfBounds(*newCoordinate, boardSize) || coordinatesMatch(*newCoordinate, piece->position)) {
+                if (isOutOfBounds(*newCoordinate, board->length) || coordinatesMatch(*newCoordinate, piece->tile->position)) {
                     free(newCoordinate);
                     continue;
                 }
@@ -307,23 +371,21 @@ Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
     return possibleMoves;
 }
 
-
-Vector *getLegalMoves(Vector *pieces, Piece *piece, byte **board, byte boardSize) {
-    Vector *possibleMoves = getPossibleMoves(piece, board, boardSize);
-
+Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board) {
+    Vector *possibleMoves = getPossibleMoves(piece, board);
 
     // we technically need to check only the black king
     // since the black king is the only piece that black has
     // and it can't move to a place where it is in check
-    // so it can't check the white king 
-    if (piece->type == BLACK_KING) {
+    // so it can't check the white king
+    if (piece->type == KING) {
         Vector *allEnemyMoves = initVector();
 
         for (byte i = 0; i < pieces->length; i++) {
             Piece *currentPiece = pieces->get(pieces, i);
 
-            if (currentPiece->type != piece->type) {
-                Vector *currentEnemyMoves = getPossibleMoves(currentPiece, board, boardSize);
+            if (currentPiece->isWhite != piece->isWhite) {
+                Vector *currentEnemyMoves = getPossibleMoves(currentPiece, board);
 
                 for (byte j = 0; j < currentEnemyMoves->length; j++) {
                     allEnemyMoves->push(allEnemyMoves, currentEnemyMoves->get(currentEnemyMoves, j));
@@ -346,88 +408,140 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, byte **board, byte boardSize
             }
         }
     }
-    else if(piece->type == WHITE_KING)
-    {
-        Vector *allEnemyMoves;
-        for (byte i = 0; i < pieces->length; i++) {
-            Piece *currentPiece = pieces->get(pieces, i);
-            if (currentPiece->type == BLACK_KING) {
-                allEnemyMoves = getPossibleMoves(currentPiece,board,boardSize);
-                break;
-            }
-        }
 
-        for (byte i = 0; i < possibleMoves->length; i++) {
-            Coordinate *currentMove = possibleMoves->get(possibleMoves, i);
+    for (byte i = 0; i < possibleMoves->length; i++) {
+        Coordinate *currentMove = possibleMoves->get(possibleMoves, i);
 
-            // if the move is in the enemy moves it is illegal
-            for (byte j = 0; j < allEnemyMoves->length; j++) {
-                Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, j);
+        Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
 
-                if (coordinatesMatch(*currentMove, *currentEnemyMove)) {
-                    possibleMoves->popIndex(possibleMoves, i--);
-
-                    break;
-                }
-            }
-        }
-    }
-
-    for(byte i=0;i<possibleMoves->length;i++)
-    {
-        Coordinate* currentMove = possibleMoves->get(possibleMoves, i);
-
-        //Black king can take everything while white cannot take anything
-        
-        if(piece->type!=BLACK_KING && board[currentMove->x][currentMove->y] != EMPTY_SPACE)
-        {
-            possibleMoves->popIndex(possibleMoves,i--);
+        if (currentTile->piece != NULL && piece->isWhite == currentTile->piece->isWhite) {
+            possibleMoves->popIndex(possibleMoves, i--);
         }
     }
 
     return possibleMoves;
 }
 
-void runChessGame(byte boardSize) {
-    byte **board = generateBoard(boardSize);
+byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
+    if (piece->type != KING) {
+        return 0;
+    }
 
-    // use the pieces struct
+    Vector *allEnemyMoves = initVector();
+
+    for (byte i = 0; i < pieces->length; i++) {
+        Piece *currentPiece = pieces->get(pieces, i);
+
+        if (currentPiece->isWhite != piece->isWhite) {
+            Vector *currentEnemyMoves = getPossibleMoves(currentPiece, board);
+
+            for (byte j = 0; j < currentEnemyMoves->length; j++) {
+                allEnemyMoves->push(allEnemyMoves, currentEnemyMoves->get(currentEnemyMoves, j));
+            }
+        }
+    }
+
+    for (byte i = 0; i < allEnemyMoves->length; i++) {
+        Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, i);
+
+        if (coordinatesMatch(*currentEnemyMove, piece->tile->position)) {
+            freeVector(allEnemyMoves);
+
+            return 1;
+        }
+    }
+
+    freeVector(allEnemyMoves);
+
+    return 0;
+}
+
+void placePiecesRandomly(Vector *board, Vector *pieces) {
+    for (byte i = 0; i < pieces->length; i++) {
+        Piece *currentPiece = pieces->get(pieces, i);
+
+        byte x, y;
+        Tile *currentTile;
+
+        printf("Is in check before: %d\n", isInCheck(pieces, currentPiece, board));
+
+        // ! Check validity of the placement
+        do {
+            x = rand() % board->length;
+            y = rand() % board->length;
+
+            currentTile = getTileFromBoard(board, x, y);
+
+            if (currentTile->piece != NULL) {
+                continue;
+            }
+
+            currentPiece->tile->piece = NULL;
+            currentPiece->tile = currentTile;
+
+            printf("Is in check: %d\n", isInCheck(pieces, currentPiece, board));
+        } while (currentTile->piece != NULL || (currentPiece->type == KING && isInCheck(pieces, currentPiece, board)));
+
+        currentPiece->tile->piece = NULL;
+        currentPiece->tile = currentTile;
+        currentTile->piece = currentPiece;
+    }
+}
+
+void runChessGame(byte boardSize) {
+    Vector *board = generateBoard(8);
+
     Vector *pieces = initVector();
 
-    pieces->push(pieces, createPiece(0, 0, WHITE_KING));
-    pieces->push(pieces, createPiece(0, 0, WHITE_ROOK_1));
-    pieces->push(pieces, createPiece(0, 0, WHITE_ROOK_2));
-    pieces->push(pieces, createPiece(0, 0, BLACK_KING));
-    
-    placePiecesRandomly(board, boardSize, pieces);
+    pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
+    pieces->push(pieces, createPiece(board, 0, 0, ROOK_2, 1));
+    pieces->push(pieces, createPiece(board, 0, 0, KING, 1));
+    pieces->push(pieces, createPiece(board, 0, 0, KING, 0));
 
+    // testing positions
+    // pieces->push(pieces, createPiece(board, 5, 4, ROOK_1, 1));
+    // pieces->push(pieces, createPiece(board, 3, 7, ROOK_2, 1));
+    // pieces->push(pieces, createPiece(board, 3, 0, KING, 1));
+    // pieces->push(pieces, createPiece(board, 5, 1, KING, 0));
 
-    // more stuff here
-    Vector* legal=getLegalMoves(pieces, pieces->data[0], board, boardSize);
+    // pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
+    // pieces->push(pieces, createPiece(board, 6, 6, ROOK_2, 1));
+    // pieces->push(pieces, createPiece(board, 0, 1, KING, 1));
+    // pieces->push(pieces, createPiece(board, 7, 7, KING, 0));
 
+    placePiecesRandomly(board, pieces);
 
-    for(byte i=0;i<legal->length;i++)
-    {
-        Coordinate* coord=legal->data[i];
-        board[coord->x][coord->y]=POSSIBLE_MOVE;
-        // printf("|%d %d| ",coord->x,coord->y);
+    for (byte i = 0; i < pieces->length; i++) {
+        Vector *legalMoves = getLegalMoves(pieces, pieces->get(pieces, i), board);
+
+        for (byte j = 0; j < legalMoves->length; j++) {
+            Coordinate *currentMove = legalMoves->get(legalMoves, j);
+
+            Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
+
+            currentTile->type = POSSIBLE_MOVE;
+        }
     }
-    printBoard(board, boardSize);
-    for(byte i=0;i<legal->length;i++)
-    {
-        Coordinate* coord=legal->data[i];
-        // board[coord->x][coord->y]=POSSIBLE_MOVE;
-        printf("|%d %d| ",coord->x,coord->y);
-    }
-    
 
-    freeBoard(board, boardSize);
-    
+    // printf("Is in check: %d\n", isInCheck(pieces, pieces->get(pieces, 3), board));
 
-
-    for (int i = 0; i < pieces->length; i++) {
-        free(pieces->get(pieces, i));
-    }
+    printBoard(board);
 
     freeVector(pieces);
+
+    for (byte i = 0; i < board->length; i++) {
+        Vector *row = board->get(board, i);
+
+        freeVector(row);
+    }
+
+    freeVector(board);
+}
+
+int main() {
+    srand(time(NULL));
+
+    runChessGame(8);
+
+    return 0;
 }
