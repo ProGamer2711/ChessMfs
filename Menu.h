@@ -6,6 +6,9 @@
 typedef void (*ExecuteSelectionFunction)(byte);
 
 void clearScreen();
+
 void waitForEnter();
+
 void printMainMenu();
+
 void runMainMenu(ExecuteSelectionFunction executeSelection);

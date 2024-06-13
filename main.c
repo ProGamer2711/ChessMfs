@@ -15,12 +15,14 @@ byte currentBoardSize = 8;
 
 void writeToFile(char *fileName, byte *seed, byte **moves, size_t movesSize) {
     FILE *file = fopen(fileName, "wb");
+
     if (file == NULL) {
         perror("Failed to open file");
         return;
     }
 
     size_t seedLength = 9;
+
     if (fwrite(seed, sizeof(byte), seedLength, file) != seedLength) {
         perror("Failed to write seed to file");
         fclose(file);
@@ -40,7 +42,6 @@ void writeToFile(char *fileName, byte *seed, byte **moves, size_t movesSize) {
 }
 
 void changeBoardSize() {
-    // ? Should we clear the screen here?
     clearScreen();
 
     byte newBoardSize;
@@ -56,13 +57,12 @@ void changeBoardSize() {
 }
 
 void replayGame() {
-    // ? Should we clear the screen here?
     clearScreen();
 
     printf("Enter file name: ");
 
-    char fileName[100];
-    fgets(fileName, 100, stdin);
+    char fileName[MAX_FILE_NAME_LENGTH];
+    fgets(fileName, MAX_FILE_NAME_LENGTH, stdin);
 
     // ! Nathaniel go brr...
 }
