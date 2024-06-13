@@ -48,7 +48,7 @@ void changeBoardSize() {
     printf("Enter new board size: ");
     scanf("%hhu", &newBoardSize);
 
-    if (newBoardSize < 3 || newBoardSize > MAX_BOARD_SIZE) {
+    if (newBoardSize < MIN_BOARD_SIZE || newBoardSize > MAX_BOARD_SIZE) {
         printf("Invalid board size\n");
     } else {
         currentBoardSize = newBoardSize;

@@ -2,10 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
-#include "Menu.c"
-#include "Vector.c"
+#include "Menu.h"
+#include "Vector.h"
 
 // ! Move this later
 Coordinate *createCoordinate(byte x, byte y) {
@@ -463,9 +462,6 @@ void placePiecesRandomly(Vector *board, Vector *pieces) {
         byte x, y;
         Tile *currentTile;
 
-        printf("Is in check before: %d\n", isInCheck(pieces, currentPiece, board));
-
-        // ! Check validity of the placement
         do {
             x = rand() % board->length;
             y = rand() % board->length;
@@ -478,8 +474,6 @@ void placePiecesRandomly(Vector *board, Vector *pieces) {
 
             currentPiece->tile->piece = NULL;
             currentPiece->tile = currentTile;
-
-            printf("Is in check: %d\n", isInCheck(pieces, currentPiece, board));
         } while (currentTile->piece != NULL || (currentPiece->type == KING && isInCheck(pieces, currentPiece, board)));
 
         currentPiece->tile->piece = NULL;
@@ -489,7 +483,7 @@ void placePiecesRandomly(Vector *board, Vector *pieces) {
 }
 
 void runChessGame(byte boardSize) {
-    Vector *board = generateBoard(8);
+    Vector *board = generateBoard(boardSize);
 
     Vector *pieces = initVector();
 
@@ -511,37 +505,37 @@ void runChessGame(byte boardSize) {
 
     placePiecesRandomly(board, pieces);
 
-    for (byte i = 0; i < pieces->length; i++) {
-        Vector *legalMoves = getLegalMoves(pieces, pieces->get(pieces, i), board);
+    // for (byte i = 0; i < pieces->length; i++) {
+    //     Vector *legalMoves = getLegalMoves(pieces, pieces->get(pieces, i), board);
 
-        for (byte j = 0; j < legalMoves->length; j++) {
-            Coordinate *currentMove = legalMoves->get(legalMoves, j);
+    //     for (byte j = 0; j < legalMoves->length; j++) {
+    //         Coordinate *currentMove = legalMoves->get(legalMoves, j);
 
-            Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
+    //         Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
 
-            currentTile->type = POSSIBLE_MOVE;
-        }
-    }
+    //         currentTile->type = POSSIBLE_MOVE;
+    //     }
+    // }
 
     // printf("Is in check: %d\n", isInCheck(pieces, pieces->get(pieces, 3), board));
 
     printBoard(board);
+
+    for (byte i = 0; i < pieces->length; i++) {
+        free(pieces->get(pieces, i));
+    }
 
     freeVector(pieces);
 
     for (byte i = 0; i < board->length; i++) {
         Vector *row = board->get(board, i);
 
+        for (byte j = 0; j < row->length; j++) {
+            free(row->get(row, j));
+        }
+
         freeVector(row);
     }
 
     freeVector(board);
-}
-
-int main() {
-    srand(time(NULL));
-
-    runChessGame(8);
-
-    return 0;
 }
