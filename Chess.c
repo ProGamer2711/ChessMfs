@@ -236,14 +236,14 @@ Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
         newCoordinate.x--;
 
         while (!isOutOfBounds(newCoordinate, boardSize)) {
-            // in this case we don't need to check if it is an enemy piece
-            // since the enemy only has a king and if it is in the way it is mate
-            if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) {
+
+            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
+
+            if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) { // We will check if we can take piece later
                 break;
             }
 
-            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x--, newCoordinate.y));
-
+            newCoordinate.x--;
         }
 
         // right movement
@@ -251,11 +251,13 @@ Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
         newCoordinate.x++;
 
         while (!isOutOfBounds(newCoordinate, boardSize)) {
+
+            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
             if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) {
                 break;
             }
 
-            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x++, newCoordinate.y));
+            newCoordinate.x++;
         }
 
         // up movement
@@ -263,11 +265,13 @@ Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
         newCoordinate.y--;
 
         while (!isOutOfBounds(newCoordinate, boardSize)) {
+            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
+
             if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) {
                 break;
             }
 
-            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y--));
+            newCoordinate.y--;
         }
 
         // down movement
@@ -275,11 +279,13 @@ Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
         newCoordinate.y++;
 
         while (!isOutOfBounds(newCoordinate, boardSize)) {
+
+            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
             if (board[newCoordinate.x][newCoordinate.y] != EMPTY_SPACE && board[newCoordinate.x][newCoordinate.y] != BLACK_KING) {
                 break;
             }
 
-            possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y++));
+            newCoordinate.y++;
         }
     } else if (piece->type == BLACK_KING || piece->type == WHITE_KING) {
 
@@ -364,6 +370,18 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, byte **board, byte boardSize
                     break;
                 }
             }
+        }
+    }
+
+    for(byte i=0;i<possibleMoves->length;i++)
+    {
+        Coordinate* currentMove = possibleMoves->get(possibleMoves, i);
+
+        //Black king can take everything while white cannot take anything
+        
+        if(piece->type!=BLACK_KING && board[currentMove->x][currentMove->y] != EMPTY_SPACE)
+        {
+            possibleMoves->popIndex(possibleMoves,i--);
         }
     }
 
