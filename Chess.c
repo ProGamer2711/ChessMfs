@@ -37,7 +37,7 @@ Tile *createTile(TileType type, byte x, byte y) {
     return tile;
 }
 
-Vector *generateBoard(byte boardSize) {
+Vector *createBoard(byte boardSize) {
     if (boardSize < MIN_BOARD_SIZE || boardSize > MAX_BOARD_SIZE) {
         printf("Invalid board size\n");
         exit(1);
@@ -144,6 +144,7 @@ void printTile(Tile *tile) {
 
 // If you use the simplified table
 // you will not see your possible moves
+// to save space in the console
 void printTileSimplified(Tile *tile) {
     if (tile->piece == NULL) {
         printf("--");
@@ -359,6 +360,7 @@ Vector *getPossibleMoves(Piece *piece, Vector *board) {
 
                 if (isOutOfBounds(*newCoordinate, board->length) || coordinatesMatch(*newCoordinate, piece->tile->position)) {
                     free(newCoordinate);
+
                     continue;
                 }
 
@@ -389,6 +391,8 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board) {
                 for (byte j = 0; j < currentEnemyMoves->length; j++) {
                     allEnemyMoves->push(allEnemyMoves, currentEnemyMoves->get(currentEnemyMoves, j));
                 }
+
+                freeVector(currentEnemyMoves);
             }
         }
 
@@ -402,10 +406,18 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board) {
                 if (coordinatesMatch(*currentMove, *currentEnemyMove)) {
                     possibleMoves->popIndex(possibleMoves, i--);
 
+                    free(currentMove);
+
                     break;
                 }
             }
         }
+
+        for (byte i = 0; i < allEnemyMoves->length; i++) {
+            free(allEnemyMoves->get(allEnemyMoves, i));
+        }
+
+        freeVector(allEnemyMoves);
     }
 
     for (byte i = 0; i < possibleMoves->length; i++) {
@@ -415,6 +427,8 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board) {
 
         if (currentTile->piece != NULL && piece->isWhite == currentTile->piece->isWhite) {
             possibleMoves->popIndex(possibleMoves, i--);
+
+            free(currentMove);
         }
     }
 
@@ -437,6 +451,8 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
             for (byte j = 0; j < currentEnemyMoves->length; j++) {
                 allEnemyMoves->push(allEnemyMoves, currentEnemyMoves->get(currentEnemyMoves, j));
             }
+
+            freeVector(currentEnemyMoves);
         }
     }
 
@@ -444,10 +460,18 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
         Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, i);
 
         if (coordinatesMatch(*currentEnemyMove, piece->tile->position)) {
+            for (byte j = 0; j < allEnemyMoves->length; j++) {
+                free(allEnemyMoves->get(allEnemyMoves, j));
+            }
+
             freeVector(allEnemyMoves);
 
             return 1;
         }
+    }
+
+    for (byte i = 0; i < allEnemyMoves->length; i++) {
+        free(allEnemyMoves->get(allEnemyMoves, i));
     }
 
     freeVector(allEnemyMoves);
@@ -483,7 +507,7 @@ void placePiecesRandomly(Vector *board, Vector *pieces) {
 }
 
 void runChessGame(byte boardSize) {
-    Vector *board = generateBoard(boardSize);
+    Vector *board = createBoard(boardSize);
 
     Vector *pieces = initVector();
 
