@@ -243,6 +243,7 @@ Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
             }
 
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x--, newCoordinate.y));
+
         }
 
         // right movement
@@ -304,11 +305,6 @@ Vector *getPossibleMoves(Piece *piece, byte **board, byte boardSize) {
 Vector *getLegalMoves(Vector *pieces, Piece *piece, byte **board, byte boardSize) {
     Vector *possibleMoves = getPossibleMoves(piece, board, boardSize);
 
-    // if the piece is a rook we don't need to check for anything else
-    // since rooks don't have illegal moves
-    if (piece->type == WHITE_ROOK_1 || piece->type == WHITE_ROOK_2) {
-        return possibleMoves;
-    }
 
     // we technically need to check only the black king
     // since the black king is the only piece that black has
@@ -337,23 +333,41 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, byte **board, byte boardSize
                 Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, j);
 
                 if (coordinatesMatch(*currentMove, *currentEnemyMove)) {
-                    // remove the move (Malinov add this to the vector)
-                    possibleMoves->popIndex(possibleMoves, i);
-
-                    // We have removed this index so we must 
-                    // go back one move to not skip the next one
-                    i--;
+                    possibleMoves->popIndex(possibleMoves, i--);
 
                     break;
                 }
             }
         }
+    }
+    else if(piece->type == WHITE_KING)
+    {
+        Vector *allEnemyMoves;
+        for (byte i = 0; i < pieces->length; i++) {
+            Piece *currentPiece = pieces->get(pieces, i);
+            if (currentPiece->type == BLACK_KING) {
+                allEnemyMoves = getPossibleMoves(currentPiece,board,boardSize);
+                break;
+            }
+        }
 
-        return possibleMoves;
+        for (byte i = 0; i < possibleMoves->length; i++) {
+            Coordinate *currentMove = possibleMoves->get(possibleMoves, i);
+
+            // if the move is in the enemy moves it is illegal
+            for (byte j = 0; j < allEnemyMoves->length; j++) {
+                Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, j);
+
+                if (coordinatesMatch(*currentMove, *currentEnemyMove)) {
+                    possibleMoves->popIndex(possibleMoves, i--);
+
+                    break;
+                }
+            }
+        }
     }
 
     return possibleMoves;
-    // !TBD add for white king
 }
 
 void runChessGame(byte boardSize) {
@@ -371,18 +385,23 @@ void runChessGame(byte boardSize) {
 
 
     // more stuff here
-    Vector* legal=getLegalMoves(pieces, pieces->data[3], board, boardSize);
-
+    Vector* legal=getLegalMoves(pieces, pieces->data[0], board, boardSize);
 
 
     for(byte i=0;i<legal->length;i++)
     {
         Coordinate* coord=legal->data[i];
         board[coord->x][coord->y]=POSSIBLE_MOVE;
-        printf("|%d %d| ",coord->x,coord->y);
-
+        // printf("|%d %d| ",coord->x,coord->y);
     }
     printBoard(board, boardSize);
+    for(byte i=0;i<legal->length;i++)
+    {
+        Coordinate* coord=legal->data[i];
+        // board[coord->x][coord->y]=POSSIBLE_MOVE;
+        printf("|%d %d| ",coord->x,coord->y);
+    }
+    
 
     freeBoard(board, boardSize);
     
