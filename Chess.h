@@ -8,6 +8,11 @@
 // Could be any size but the best experience is up to 50
 #define MAX_BOARD_SIZE 50
 
+typedef struct Coordinate {
+    byte x;
+    byte y;
+} Coordinate;
+
 typedef enum PieceType {
     KING,
     ROOK_1,

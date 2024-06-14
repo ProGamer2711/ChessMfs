@@ -11,8 +11,3 @@
 #define MAX_FILE_NAME_LENGTH 100
 
 typedef uint8_t byte;
-
-typedef struct Coordinate {
-    byte x;
-    byte y;
-} Coordinate;

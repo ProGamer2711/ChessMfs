@@ -1,5 +1,6 @@
 #include "Chess.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +8,9 @@
 #include "Menu.h"
 #include "Vector.h"
 
-// ! Move this later
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 Coordinate *createCoordinate(byte x, byte y) {
     Coordinate *coordinate = (Coordinate *)malloc(sizeof(Coordinate));
 
@@ -377,9 +380,8 @@ Vector *getPossibleMoves(Piece *piece, Vector *board) {
             break;
         }
     } else if (piece->type == KING) {
-        // ! try and convert to something else and not short
-        for (short i = piece->tile->position.x - 1; i <= piece->tile->position.x + 1; i++) {
-            for (short j = piece->tile->position.y - 1; j <= piece->tile->position.y + 1; j++) {
+        for (byte i = max(piece->tile->position.x - 1, 0); i <= piece->tile->position.x + 1; i++) {
+            for (byte j = max(piece->tile->position.y - 1, 0); j <= piece->tile->position.y + 1; j++) {
                 Coordinate *newCoordinate = createCoordinate(i, j);
 
                 if (isOutOfBounds(*newCoordinate, board->length) || coordinatesMatch(*newCoordinate, piece->tile->position)) {
@@ -552,6 +554,7 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
     moves->push(moves, move);
 }
 
+// ! free memory
 void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     // ask the user which piece to move
     // here we enter the piece as a string
@@ -577,6 +580,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
 
     if (selectedPiece == NULL) {
         printf("Invalid piece\n");
+        waitForEnter();
         return;
     }
 
@@ -594,11 +598,19 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
 
     // ask the user where to move
     printf("Where do you want to move the piece? [row, column]\n> ");
-    // ! This maybe shouldn't be a short
     unsigned short row, column;
 
+    // %hhu is not reliable so we use this
     if (scanf("%hu, %hu", &row, &column) != 2) {
         printf("Invalid input format. Please enter as [row, column]\n");
+        waitForEnter();
+        return;
+    }
+
+    // check if row or column isn't within uint8_t range
+    if (row > UCHAR_MAX || column > UCHAR_MAX) {
+        printf("Invalid input\n");
+        waitForEnter();
         return;
     }
 
@@ -618,6 +630,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
 
     if (!isLegal) {
         printf("Illegal move\n");
+        waitForEnter();
         free(newCoordinate);
         return;
     }
@@ -653,7 +666,7 @@ void runChessGame(byte boardSize) {
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_2, 1));
     // ! for testing purposes
-    // pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 0));
+    pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 0));
     pieces->push(pieces, createPiece(board, 0, 0, KING, 0));
     pieces->push(pieces, createPiece(board, 0, 0, KING, 1));
 
@@ -692,8 +705,10 @@ void runChessGame(byte boardSize) {
 
         clearScreen();
 
-        printf("Your move: ");
-        printMove(moves->get(moves, moves->length - 1));
+        if (moves->length > 0) {
+            printf("Your move: ");
+            printMove(moves->get(moves, moves->length - 1));
+        }
     }
 
     // free memory

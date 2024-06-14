@@ -44,11 +44,10 @@ void writeToFile(char *fileName, byte *seed, byte **moves, size_t movesSize) {
 void changeBoardSize() {
     clearScreen();
 
-    byte newBoardSize;
+    unsigned short newBoardSize;
 
     printf("Enter new board size: ");
-    // ! Format specifier check
-    scanf("%hhu", &newBoardSize);
+    scanf("%hu", &newBoardSize);
 
     if (newBoardSize < MIN_BOARD_SIZE || newBoardSize > MAX_BOARD_SIZE) {
         printf("Invalid board size\n");
