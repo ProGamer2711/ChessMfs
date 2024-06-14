@@ -565,7 +565,7 @@ void placePiecesRandomly(Vector *board, Vector *pieces) {
     }
 }
 
-void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
+void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end, Vector *pieces) {
     // check if the move is a capture
     Tile *endTile = getTileFromBoard(board, end.x, end.y);
 
@@ -573,6 +573,16 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
 
     if (endTile->piece != NULL) {
         pieceTaken = endTile->piece;
+
+        // remove the piece from the pieces vector
+        for (byte i = 0; i < pieces->length; i++) {
+            Piece *currentPiece = pieces->get(pieces, i);
+
+            if (currentPiece == pieceTaken) {
+                pieces->popIndex(pieces, i);
+                break;
+            }
+        }
     }
 
     // move the piece
@@ -675,12 +685,12 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
 
     freeVector(legalMoves);
 
-    makeMove(moves, board, selectedPiece, *newCoordinate);
+    makeMove(moves, board, selectedPiece, *newCoordinate, pieces);
 
     free(newCoordinate);
 }
 
-void undoMove(Vector *moves, Vector *board) {
+void undoMove(Vector *moves, Vector *board, Vector *pieces) {
     if (moves->length == 0) {
         printf("No moves to undo\n");
         waitForEnter();
@@ -694,6 +704,8 @@ void undoMove(Vector *moves, Vector *board) {
 
     startTile->piece = lastMove->piece;
     endTile->piece = lastMove->pieceTaken;
+
+    pieces->push(pieces, lastMove->pieceTaken);
 
     lastMove->piece->tile = startTile;
 
