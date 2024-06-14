@@ -742,6 +742,7 @@ void runChessGame(byte boardSize) {
     while (1) {
         printBoard(board);
 
+        // ! Use a better way to get the black king
         if (isInCheckmate(pieces, pieces->get(pieces, 3), board)) {
             printf("Checkmate\n");
             break;
