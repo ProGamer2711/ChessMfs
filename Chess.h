@@ -33,6 +33,13 @@ struct Tile {
     Piece* piece;
 };
 
+typedef struct Move {
+    Piece* piece;
+    Coordinate start;
+    Coordinate end;
+    Piece* pieceTaken;
+} Move;
+
 void printBoard(Vector* board);
 
 void runChessGame(byte boardSize);

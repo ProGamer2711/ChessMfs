@@ -254,6 +254,7 @@ void printBoardAsSimplifiedTable(Vector *board) {
 }
 
 void printBoard(Vector *board) {
+    // ! add this back later
     // clearScreen();
 
     printf("You play as white\n");
@@ -544,6 +545,9 @@ void runChessGame(byte boardSize) {
 
     printBoard(board);
 
+    Vector *moves = initVector();
+
+    // free memory
     for (byte i = 0; i < pieces->length; i++) {
         free(pieces->get(pieces, i));
     }
