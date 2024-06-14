@@ -461,9 +461,13 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board) {
     return possibleMoves;
 }
 
+// If the king is in the enemy's possible moves
+// it is in check
 byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
+    byte isInCheck = 0;
+
     if (piece->type != KING) {
-        return 0;
+        return isInCheck;
     }
 
     Vector *allEnemyMoves = initVector();
@@ -486,13 +490,7 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
         Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, i);
 
         if (coordinatesMatch(*currentEnemyMove, piece->tile->position)) {
-            for (byte j = 0; j < allEnemyMoves->length; j++) {
-                free(allEnemyMoves->get(allEnemyMoves, j));
-            }
-
-            freeVector(allEnemyMoves);
-
-            return 1;
+            isInCheck = 1;
         }
     }
 
@@ -502,7 +500,39 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
 
     freeVector(allEnemyMoves);
 
-    return 0;
+    return isInCheck;
+}
+
+// If the piece has no possible moves
+// it is a stalemate
+byte isInStalemate(Vector *pieces, Piece *piece, Vector *board) {
+    byte isInStalemate = 0;
+
+    if (piece->type != KING) {
+        return isInStalemate;
+    }
+
+    // if the piece has no possible moves
+    // it is a stalemate
+    Vector *possibleMoves = getPossibleMoves(piece, board);
+
+    if (possibleMoves->length == 0) {
+        isInStalemate = 1;
+    }
+
+    for (byte i = 0; i < possibleMoves->length; i++) {
+        free(possibleMoves->get(possibleMoves, i));
+    }
+
+    freeVector(possibleMoves);
+
+    return isInStalemate;
+}
+
+// If the piece is both in check and in stalemate
+// it is a checkmate
+byte isInCheckmate(Vector *pieces, Piece *piece, Vector *board) {
+    return isInCheck(pieces, piece, board) && isInStalemate(pieces, piece, board);
 }
 
 void placePiecesRandomly(Vector *board, Vector *pieces) {
@@ -644,6 +674,26 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     makeMove(moves, board, selectedPiece, *newCoordinate);
 
     free(newCoordinate);
+}
+
+void undoMove(Vector *moves, Vector *board) {
+    if (moves->length == 0) {
+        printf("No moves to undo\n");
+        waitForEnter();
+        return;
+    }
+
+    Move *lastMove = moves->pop(moves);
+
+    Tile *startTile = getTileFromBoard(board, lastMove->start.x, lastMove->start.y);
+    Tile *endTile = getTileFromBoard(board, lastMove->end.x, lastMove->end.y);
+
+    startTile->piece = lastMove->piece;
+    endTile->piece = lastMove->pieceTaken;
+
+    lastMove->piece->tile = startTile;
+
+    free(lastMove);
 }
 
 void printMove(Move *move) {
