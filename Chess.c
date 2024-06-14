@@ -503,8 +503,6 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
     return isInCheck;
 }
 
-// If the piece has no possible moves
-// it is a stalemate
 byte isInStalemate(Vector *pieces, Piece *piece, Vector *board) {
     byte isInStalemate = 0;
 
@@ -512,9 +510,15 @@ byte isInStalemate(Vector *pieces, Piece *piece, Vector *board) {
         return isInStalemate;
     }
 
+    // if the only pieces left are the two kings
+    // it is a stalemate
+    if (pieces->length == 2) {
+        return 1;
+    }
+
     // if the piece has no possible moves
     // it is a stalemate
-    Vector *possibleMoves = getPossibleMoves(piece, board);
+    Vector *possibleMoves = getLegalMoves(pieces, piece, board);
 
     if (possibleMoves->length == 0) {
         isInStalemate = 1;
@@ -738,6 +742,20 @@ void runChessGame(byte boardSize) {
     while (1) {
         printBoard(board);
 
+        if (isInCheckmate(pieces, pieces->get(pieces, 3), board)) {
+            printf("Checkmate\n");
+            break;
+        }
+
+        if (isInCheck(pieces, pieces->get(pieces, 3), board)) {
+            printf("Check\n");
+        }
+
+        if (isInStalemate(pieces, pieces->get(pieces, 3), board)) {
+            printf("Stalemate\n");
+            break;
+        }
+
         makeLegalMove(moves, pieces, board);
 
         // remove all possible moves
@@ -762,6 +780,12 @@ void runChessGame(byte boardSize) {
     }
 
     // free memory
+    for (byte i = 0; i < moves->length; i++) {
+        free(moves->get(moves, i));
+    }
+
+    freeVector(moves);
+
     for (byte i = 0; i < pieces->length; i++) {
         free(pieces->get(pieces, i));
     }
