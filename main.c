@@ -47,6 +47,7 @@ void changeBoardSize() {
     byte newBoardSize;
 
     printf("Enter new board size: ");
+    // ! Format specifier check
     scanf("%hhu", &newBoardSize);
 
     if (newBoardSize < MIN_BOARD_SIZE || newBoardSize > MAX_BOARD_SIZE) {

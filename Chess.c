@@ -146,6 +146,13 @@ void printTile(Tile *tile) {
                 printf("kg");
                 break;
             // rooks are not needed here
+            // but we can still add them
+            case ROOK_1:
+                printf("r1");
+                break;
+            case ROOK_2:
+                printf("r2");
+                break;
             default:
                 printf("??");
                 break;
@@ -626,6 +633,18 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     free(newCoordinate);
 }
 
+void printMove(Move *move) {
+    printf("%s %s ", move->piece->isWhite ? "White" : "Black", move->piece->type == KING ? "king" : "rook");
+    printf("(%d, %d) -> ", move->start.x + 1, move->start.y + 1);
+    printf("(%d, %d)", move->end.x + 1, move->end.y + 1);
+
+    if (move->pieceTaken != NULL) {
+        printf(" (piece taken: %s %s)", move->pieceTaken->isWhite ? "white" : "black", move->pieceTaken->type == KING ? "king" : "rook");
+    }
+
+    printf("\n");
+}
+
 void runChessGame(byte boardSize) {
     Vector *board = createBoard(boardSize);
 
@@ -633,6 +652,8 @@ void runChessGame(byte boardSize) {
 
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_2, 1));
+    // ! for testing purposes
+    // pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 0));
     pieces->push(pieces, createPiece(board, 0, 0, KING, 0));
     pieces->push(pieces, createPiece(board, 0, 0, KING, 1));
 
@@ -649,23 +670,13 @@ void runChessGame(byte boardSize) {
 
     placePiecesRandomly(board, pieces);
 
-    // for (byte i = 0; i < pieces->length; i++) {
-    //     Vector *legalMoves = getLegalMoves(pieces, pieces->get(pieces, i), board);
-
-    //     for (byte j = 0; j < legalMoves->length; j++) {
-    //         Coordinate *currentMove = legalMoves->get(legalMoves, j);
-
-    //         Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
-
-    //         currentTile->type = POSSIBLE_MOVE;
-    //     }
-    // }
-
-    // printf("Is in check: %d\n", isInCheck(pieces, pieces->get(pieces, 3), board));
-
     Vector *moves = initVector();
 
     while (1) {
+        printBoard(board);
+
+        makeLegalMove(moves, pieces, board);
+
         // remove all possible moves
         for (byte i = 0; i < board->length; i++) {
             Vector *row = board->get(board, i);
@@ -679,9 +690,10 @@ void runChessGame(byte boardSize) {
             }
         }
 
-        printBoard(board);
+        clearScreen();
 
-        makeLegalMove(moves, pieces, board);
+        printf("Your move: ");
+        printMove(moves->get(moves, moves->length - 1));
     }
 
     // free memory
