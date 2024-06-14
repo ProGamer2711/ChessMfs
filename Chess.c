@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Menu.h"
 #include "Vector.h"
@@ -81,6 +82,22 @@ Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite) 
     // piece->tile->piece = piece;
 
     return piece;
+}
+
+Move *createMove(Piece *piece, Coordinate start, Coordinate end, Piece *pieceTaken) {
+    Move *move = (Move *)malloc(sizeof(Move));
+
+    if (move == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    move->piece = piece;
+    move->start = start;
+    move->end = end;
+    move->pieceTaken = pieceTaken;
+
+    return move;
 }
 
 byte isOutOfBounds(Coordinate coordinate, byte boardSize) {
@@ -353,7 +370,6 @@ Vector *getPossibleMoves(Piece *piece, Vector *board) {
             break;
         }
     } else if (piece->type == KING) {
-        // must be short or else we might have an underflow
         // ! try and convert to something else and not short
         for (short i = piece->tile->position.x - 1; i <= piece->tile->position.x + 1; i++) {
             for (short j = piece->tile->position.y - 1; j <= piece->tile->position.y + 1; j++) {
@@ -506,6 +522,110 @@ void placePiecesRandomly(Vector *board, Vector *pieces) {
     }
 }
 
+void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
+    // check if the move is a capture
+    Tile *endTile = getTileFromBoard(board, end.x, end.y);
+
+    Piece *pieceTaken = NULL;
+
+    if (endTile->piece != NULL) {
+        pieceTaken = endTile->piece;
+    }
+
+    // move the piece
+    Tile *startTile = piece->tile;
+
+    startTile->piece = NULL;
+    endTile->piece = piece;
+
+    piece->tile = endTile;
+
+    Move *move = createMove(piece, startTile->position, end, pieceTaken);
+
+    moves->push(moves, move);
+}
+
+void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
+    // ask the user which piece to move
+    // here we enter the piece as a string
+    // ie. KG for white king, R1 for white rook 1
+    printf("Which piece do you want to move? [KG/R1/R2]\n> ");
+    char piece[3];
+    scanf("%2s", piece);
+
+    Piece *selectedPiece = NULL;
+
+    for (byte i = 0; i < pieces->length; i++) {
+        Piece *currentPiece = pieces->get(pieces, i);
+
+        if (currentPiece->isWhite) {
+            if ((currentPiece->type == KING && strcmp(piece, "KG") == 0) ||
+                (currentPiece->type == ROOK_1 && strcmp(piece, "R1") == 0) ||
+                (currentPiece->type == ROOK_2 && strcmp(piece, "R2") == 0)) {
+                selectedPiece = currentPiece;
+                break;
+            }
+        }
+    }
+
+    if (selectedPiece == NULL) {
+        printf("Invalid piece\n");
+        return;
+    }
+
+    Vector *legalMoves = getLegalMoves(pieces, selectedPiece, board);
+
+    // mark all tiles with possible moves
+    for (byte i = 0; i < legalMoves->length; i++) {
+        Coordinate *currentMove = legalMoves->get(legalMoves, i);
+
+        Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
+        currentTile->type = POSSIBLE_MOVE;
+    }
+
+    printBoard(board);
+
+    // ask the user where to move
+    printf("Where do you want to move the piece? [row, column]\n> ");
+    // ! This maybe shouldn't be a short
+    unsigned short row, column;
+
+    if (scanf("%hu, %hu", &row, &column) != 2) {
+        printf("Invalid input format. Please enter as [row, column]\n");
+        return;
+    }
+
+    Coordinate *newCoordinate = createCoordinate(row - 1, column - 1);
+
+    // check if the move is legal
+    byte isLegal = 0;
+
+    for (byte i = 0; i < legalMoves->length; i++) {
+        Coordinate *currentMove = legalMoves->get(legalMoves, i);
+
+        if (coordinatesMatch(*currentMove, *newCoordinate)) {
+            isLegal = 1;
+            break;
+        }
+    }
+
+    if (!isLegal) {
+        printf("Illegal move\n");
+        free(newCoordinate);
+        return;
+    }
+
+    for (byte i = 0; i < legalMoves->length; i++) {
+        free(legalMoves->get(legalMoves, i));
+    }
+
+    freeVector(legalMoves);
+
+    makeMove(moves, board, selectedPiece, *newCoordinate);
+
+    free(newCoordinate);
+}
+
 void runChessGame(byte boardSize) {
     Vector *board = createBoard(boardSize);
 
@@ -543,9 +663,26 @@ void runChessGame(byte boardSize) {
 
     // printf("Is in check: %d\n", isInCheck(pieces, pieces->get(pieces, 3), board));
 
-    printBoard(board);
-
     Vector *moves = initVector();
+
+    while (1) {
+        // remove all possible moves
+        for (byte i = 0; i < board->length; i++) {
+            Vector *row = board->get(board, i);
+
+            for (byte j = 0; j < row->length; j++) {
+                Tile *currentTile = row->get(row, j);
+
+                if (currentTile->type == POSSIBLE_MOVE) {
+                    currentTile->type = NORMAL;
+                }
+            }
+        }
+
+        printBoard(board);
+
+        makeLegalMove(moves, pieces, board);
+    }
 
     // free memory
     for (byte i = 0; i < pieces->length; i++) {
