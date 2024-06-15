@@ -643,11 +643,11 @@ void runChessGame(byte boardSize) {
             break;
         }
 
-        if (isInCheck(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
+        if (isInCheck(pieces, blackKing, board) || isInCheck(pieces, whiteKing, board)) {
             printf("Check\n");
         }
 
-        if (isInStalemate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
+        if ((isInStalemate(pieces, blackKing, board)&&!playerTurn) || (isInStalemate(pieces, whiteKing, board)&&playerTurn)) {
             printf("Game over: Stalemate\n");
 
             writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
