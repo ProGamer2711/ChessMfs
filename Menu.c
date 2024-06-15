@@ -22,7 +22,7 @@ void printMainMenu() {
 }
 
 void runMainMenu(ExecuteSelectionFunction executeSelection) {
-    byte currentChoice = 0;
+    unsigned short currentChoice = 0;
 
     while (1) {
         clearScreen();
@@ -30,7 +30,7 @@ void runMainMenu(ExecuteSelectionFunction executeSelection) {
         printMainMenu();
 
         printf("> ");
-        scanf("%hhu", &currentChoice);
+        scanf("%hu", &currentChoice);
 
         executeSelection(currentChoice);
     }
