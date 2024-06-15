@@ -7,15 +7,14 @@
 
 #include "Constants.h"
 #include "Menu.h"
-#include "Vector.h"
+#include "Printing.h"
 #include "Replay.h"
+#include "Vector.h"
 
-Coordinate *createCoordinate(byte x, byte y)
-{
+Coordinate *createCoordinate(byte x, byte y) {
     Coordinate *coordinate = (Coordinate *)malloc(sizeof(Coordinate));
 
-    if (coordinate == NULL)
-    {
+    if (coordinate == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
@@ -26,12 +25,10 @@ Coordinate *createCoordinate(byte x, byte y)
     return coordinate;
 }
 
-Tile *createTile(TileType type, byte x, byte y)
-{
+Tile *createTile(TileType type, byte x, byte y) {
     Tile *tile = (Tile *)malloc(sizeof(Tile));
 
-    if (tile == NULL)
-    {
+    if (tile == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
@@ -44,22 +41,18 @@ Tile *createTile(TileType type, byte x, byte y)
     return tile;
 }
 
-Vector *createBoard(byte boardSize)
-{
-    if (boardSize < MIN_BOARD_SIZE || boardSize > MAX_BOARD_SIZE)
-    {
+Vector *createBoard(byte boardSize) {
+    if (boardSize < MIN_BOARD_SIZE || boardSize > MAX_BOARD_SIZE) {
         printf("Invalid board size\n");
         exit(1);
     }
 
     Vector *board = initVector();
 
-    for (byte i = 0; i < boardSize; i++)
-    {
+    for (byte i = 0; i < boardSize; i++) {
         Vector *row = initVector();
 
-        for (byte j = 0; j < boardSize; j++)
-        {
+        for (byte j = 0; j < boardSize; j++) {
             row->push(row, createTile(NORMAL, i, j));
         }
 
@@ -69,20 +62,17 @@ Vector *createBoard(byte boardSize)
     return board;
 }
 
-Tile *getTileFromBoard(Vector *board, byte x, byte y)
-{
+Tile *getTileFromBoard(Vector *board, byte x, byte y) {
     Vector *row = board->get(board, x);
     Tile *tile = row->get(row, y);
 
     return tile;
 }
 
-Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite)
-{
+Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite) {
     Piece *piece = (Piece *)malloc(sizeof(Piece));
 
-    if (piece == NULL)
-    {
+    if (piece == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
@@ -98,12 +88,10 @@ Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite)
     return piece;
 }
 
-Move *createMove(Piece *piece, Coordinate start, Coordinate end, Piece *pieceTaken)
-{
+Move *createMove(Piece *piece, Coordinate start, Coordinate end, Piece *pieceTaken) {
     Move *move = (Move *)malloc(sizeof(Move));
 
-    if (move == NULL)
-    {
+    if (move == NULL) {
         printf("Memory allocation failed\n");
         exit(1);
     }
@@ -116,272 +104,57 @@ Move *createMove(Piece *piece, Coordinate start, Coordinate end, Piece *pieceTak
     return move;
 }
 
-byte isOutOfBounds(Coordinate coordinate, byte boardSize)
-{
-    if (coordinate.x < 0 || coordinate.x >= boardSize || coordinate.y < 0 || coordinate.y >= boardSize)
-    {
+Piece *getPieceByName(Vector *pieces, char *pieceName) {
+    for (byte i = 0; i < pieces->length; i++) {
+        Piece *currentPiece = pieces->get(pieces, i);
+
+        if (currentPiece->isWhite) {
+            if ((currentPiece->type == KING && strcmp(pieceName, "KG") == 0) ||
+                (currentPiece->type == ROOK_1 && strcmp(pieceName, "R1") == 0) ||
+                (currentPiece->type == ROOK_2 && strcmp(pieceName, "R2") == 0)) {
+                return currentPiece;
+            }
+        } else {
+            if ((currentPiece->type == KING && strcmp(pieceName, "kg") == 0)) {
+                return currentPiece;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+byte isOutOfBounds(Coordinate coordinate, byte boardSize) {
+    if (coordinate.x < 0 || coordinate.x >= boardSize || coordinate.y < 0 || coordinate.y >= boardSize) {
         return 1;
     }
 
     return 0;
 }
 
-byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2)
-{
-    if (coordinate1.x == coordinate2.x && coordinate1.y == coordinate2.y)
-    {
+byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
+    if (coordinate1.x == coordinate2.x && coordinate1.y == coordinate2.y) {
         return 1;
     }
 
     return 0;
 }
 
-void printTile(Tile *tile)
-{
-    if (tile->type == POSSIBLE_MOVE)
-    {
-        printf("(");
-    }
-    else
-    {
-        printf(" ");
-    }
-
-    if (tile->piece == NULL)
-    {
-        printf("  ");
-    }
-    else if (tile->piece->isWhite)
-    {
-        switch (tile->piece->type)
-        {
-        case KING:
-            printf("KG");
-            break;
-        case ROOK_1:
-            printf("R1");
-            break;
-        case ROOK_2:
-            printf("R2");
-            break;
-        default:
-            printf("??");
-            break;
-        }
-    }
-    else
-    {
-        switch (tile->piece->type)
-        {
-        case KING:
-            printf("kg");
-            break;
-        // rooks are not needed here
-        // but we can still add them
-        case ROOK_1:
-            printf("r1");
-            break;
-        case ROOK_2:
-            printf("r2");
-            break;
-        default:
-            printf("??");
-            break;
-        }
-    }
-
-    if (tile->type == POSSIBLE_MOVE)
-    {
-        printf(")");
-    }
-    else
-    {
-        printf(" ");
-    }
-}
-
-// If you use the simplified table
-// you will not see your possible moves
-// to save space in the console
-void printTileSimplified(Tile *tile)
-{
-    if (tile->piece == NULL)
-    {
-        printf("--");
-    }
-    else if (tile->piece->isWhite)
-    {
-        switch (tile->piece->type)
-        {
-        case KING:
-            printf("KG");
-            break;
-        case ROOK_1:
-            printf("R1");
-            break;
-        case ROOK_2:
-            printf("R2");
-            break;
-        default:
-            printf("??");
-            break;
-        }
-    }
-    else
-    {
-        switch (tile->piece->type)
-        {
-        case KING:
-            printf("kg");
-            break;
-        // rooks are not needed here
-        default:
-            printf("??");
-            break;
-        }
-    }
-}
-
-void printHorizontalBorder(byte boardSize)
-{
-    for (byte j = 0; j < boardSize; j++)
-    {
-        printf("+----");
-    }
-    printf("+\n");
-}
-
-void printHorizontalNumbers(byte boardSize)
-{
-    // add one extra to start from 00 with an extra cell
-    // so we can have row numbers too
-    for (byte j = 0; j < boardSize + 1; j++)
-    {
-        printf("| %02d ", j);
-    }
-
-    printf("|\n");
-}
-
-void printBoardAsTable(Vector *board)
-{
-    printHorizontalBorder(board->length + 1);
-
-    printHorizontalNumbers(board->length);
-
-    for (byte i = 0; i < board->length; i++)
-    {
-        // top border
-        printHorizontalBorder(board->length + 1);
-
-        // add the actual cells
-        for (byte j = 0; j < board->length; j++)
-        {
-            // print the index as a cell before that
-            if (j == 0)
-            {
-                printf("| %02d ", i + 1);
-            }
-
-            printf("|");
-
-            Tile *currentTile = getTileFromBoard(board, i, j);
-
-            printTile(currentTile);
-        }
-        printf("|\n");
-    }
-
-    // bottom border
-    printHorizontalBorder(board->length + 1);
-}
-
-void printBoardAsSimplifiedTable(Vector *board)
-{
-    for (byte i = 0; i < board->length; i++)
-    {
-        // print the top numbers
-        if (i == 0)
-        {
-            for (byte j = 0; j < board->length + 1; j++)
-            {
-                printf("%02d ", j);
-            }
-            printf("\n");
-        }
-
-        for (byte j = 0; j < board->length; j++)
-        {
-            // print the index
-            if (j == 0)
-            {
-                printf("%02d ", i + 1);
-            }
-
-            Tile *currentTile = getTileFromBoard(board, i, j);
-
-            if (currentTile->piece != NULL)
-            {
-                printTileSimplified(currentTile);
-            }
-            else
-            {
-                printf("--");
-            }
-
-            printf(" ");
-        }
-
-        printf("\n");
-    }
-}
-
-void printBoard(Vector *board)
-{
-    // ! add this back later
-    // clearScreen();
-
-    printf("You play as white\n");
-    printf("White pieces have uppercase letters\n");
-    printf("Black pieces have lowercase letters\n");
-    printf("White king: KG\n");
-    printf("White rook 1: R1\n");
-    printf("White rook 2: R2\n");
-    printf("Black king: kg\n");
-
-    if (board->length <= 20)
-    {
-        printf("\n");
-
-        printBoardAsTable(board);
-    }
-    else
-    {
-        printf("Empty spaces are marked with --\n\n");
-
-        printBoardAsSimplifiedTable(board);
-    }
-}
-
-Vector *getPossibleMoves(Piece *piece, Vector *board)
-{
+Vector *getPossibleMoves(Piece *piece, Vector *board) {
     Vector *possibleMoves = initVector();
 
-    if (piece->type == ROOK_1 || piece->type == ROOK_2)
-    {
+    if (piece->type == ROOK_1 || piece->type == ROOK_2) {
         // left movement
         Coordinate newCoordinate = piece->tile->position;
         // we do these offsets to avoid the piece itself
         newCoordinate.x--;
 
-        while (!isOutOfBounds(newCoordinate, board->length))
-        {
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
 
             Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
 
-            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite))
-            {
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
                 newCoordinate.x--;
 
                 continue;
@@ -394,14 +167,12 @@ Vector *getPossibleMoves(Piece *piece, Vector *board)
         newCoordinate = piece->tile->position;
         newCoordinate.x++;
 
-        while (!isOutOfBounds(newCoordinate, board->length))
-        {
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
 
             Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
 
-            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite))
-            {
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
                 newCoordinate.x++;
 
                 continue;
@@ -414,14 +185,12 @@ Vector *getPossibleMoves(Piece *piece, Vector *board)
         newCoordinate = piece->tile->position;
         newCoordinate.y--;
 
-        while (!isOutOfBounds(newCoordinate, board->length))
-        {
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
 
             Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
 
-            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite))
-            {
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
                 newCoordinate.y--;
 
                 continue;
@@ -434,14 +203,12 @@ Vector *getPossibleMoves(Piece *piece, Vector *board)
         newCoordinate = piece->tile->position;
         newCoordinate.y++;
 
-        while (!isOutOfBounds(newCoordinate, board->length))
-        {
+        while (!isOutOfBounds(newCoordinate, board->length)) {
             possibleMoves->push(possibleMoves, createCoordinate(newCoordinate.x, newCoordinate.y));
 
             Tile *currentTile = getTileFromBoard(board, newCoordinate.x, newCoordinate.y);
 
-            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite))
-            {
+            if (currentTile->piece == NULL || (currentTile->piece->type == KING && currentTile->piece->isWhite != piece->isWhite)) {
                 newCoordinate.y++;
 
                 continue;
@@ -449,17 +216,12 @@ Vector *getPossibleMoves(Piece *piece, Vector *board)
 
             break;
         }
-    }
-    else if (piece->type == KING)
-    {
-        for (byte i = max(piece->tile->position.x - 1, 0); i <= piece->tile->position.x + 1; i++)
-        {
-            for (byte j = max(piece->tile->position.y - 1, 0); j <= piece->tile->position.y + 1; j++)
-            {
+    } else if (piece->type == KING) {
+        for (byte i = max(piece->tile->position.x - 1, 0); i <= piece->tile->position.x + 1; i++) {
+            for (byte j = max(piece->tile->position.y - 1, 0); j <= piece->tile->position.y + 1; j++) {
                 Coordinate *newCoordinate = createCoordinate(i, j);
 
-                if (isOutOfBounds(*newCoordinate, board->length) || coordinatesMatch(*newCoordinate, piece->tile->position))
-                {
+                if (isOutOfBounds(*newCoordinate, board->length) || coordinatesMatch(*newCoordinate, piece->tile->position)) {
                     free(newCoordinate);
 
                     continue;
@@ -473,33 +235,27 @@ Vector *getPossibleMoves(Piece *piece, Vector *board)
     return possibleMoves;
 }
 
-Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board)
-{
+Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board) {
     Vector *possibleMoves = getPossibleMoves(piece, board);
 
     // we technically need to check only the black king
     // since the black king is the only piece that black has
     // and it can't move to a place where it is in check
     // so it can't check the white king
-    if (piece->type == KING)
-    {
+    if (piece->type == KING) {
         Vector *allEnemyMoves = initVector();
 
-        for (byte i = 0; i < pieces->length; i++)
-        {
+        for (byte i = 0; i < pieces->length; i++) {
             Piece *currentPiece = pieces->get(pieces, i);
 
-            if (currentPiece->isTaken)
-            {
+            if (currentPiece->isTaken) {
                 continue;
             }
 
-            if (currentPiece->isWhite != piece->isWhite)
-            {
+            if (currentPiece->isWhite != piece->isWhite) {
                 Vector *currentEnemyMoves = getPossibleMoves(currentPiece, board);
 
-                for (byte j = 0; j < currentEnemyMoves->length; j++)
-                {
+                for (byte j = 0; j < currentEnemyMoves->length; j++) {
                     allEnemyMoves->push(allEnemyMoves, currentEnemyMoves->get(currentEnemyMoves, j));
                 }
 
@@ -507,17 +263,14 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board)
             }
         }
 
-        for (byte i = 0; i < possibleMoves->length; i++)
-        {
+        for (byte i = 0; i < possibleMoves->length; i++) {
             Coordinate *currentMove = possibleMoves->get(possibleMoves, i);
 
             // if the move is in the enemy moves it is illegal
-            for (byte j = 0; j < allEnemyMoves->length; j++)
-            {
+            for (byte j = 0; j < allEnemyMoves->length; j++) {
                 Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, j);
 
-                if (coordinatesMatch(*currentMove, *currentEnemyMove))
-                {
+                if (coordinatesMatch(*currentMove, *currentEnemyMove)) {
                     possibleMoves->popIndex(possibleMoves, i--);
 
                     free(currentMove);
@@ -527,22 +280,19 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board)
             }
         }
 
-        for (byte i = 0; i < allEnemyMoves->length; i++)
-        {
+        for (byte i = 0; i < allEnemyMoves->length; i++) {
             free(allEnemyMoves->get(allEnemyMoves, i));
         }
 
         freeVector(allEnemyMoves);
     }
 
-    for (byte i = 0; i < possibleMoves->length; i++)
-    {
+    for (byte i = 0; i < possibleMoves->length; i++) {
         Coordinate *currentMove = possibleMoves->get(possibleMoves, i);
 
         Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
 
-        if (currentTile->piece != NULL && piece->isWhite == currentTile->piece->isWhite)
-        {
+        if (currentTile->piece != NULL && piece->isWhite == currentTile->piece->isWhite) {
             possibleMoves->popIndex(possibleMoves, i--);
 
             free(currentMove);
@@ -554,32 +304,26 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board)
 
 // If the king is in the enemy's possible moves
 // it is in check
-byte isInCheck(Vector *pieces, Piece *piece, Vector *board)
-{
+byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
     byte isInCheck = 0;
 
-    if (piece->type != KING)
-    {
+    if (piece->type != KING) {
         return isInCheck;
     }
 
     Vector *allEnemyMoves = initVector();
 
-    for (byte i = 0; i < pieces->length; i++)
-    {
+    for (byte i = 0; i < pieces->length; i++) {
         Piece *currentPiece = pieces->get(pieces, i);
 
-        if (currentPiece->isTaken)
-        {
+        if (currentPiece->isTaken) {
             continue;
         }
 
-        if (currentPiece->isWhite != piece->isWhite)
-        {
+        if (currentPiece->isWhite != piece->isWhite) {
             Vector *currentEnemyMoves = getPossibleMoves(currentPiece, board);
 
-            for (byte j = 0; j < currentEnemyMoves->length; j++)
-            {
+            for (byte j = 0; j < currentEnemyMoves->length; j++) {
                 allEnemyMoves->push(allEnemyMoves, currentEnemyMoves->get(currentEnemyMoves, j));
             }
 
@@ -587,18 +331,15 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board)
         }
     }
 
-    for (byte i = 0; i < allEnemyMoves->length; i++)
-    {
+    for (byte i = 0; i < allEnemyMoves->length; i++) {
         Coordinate *currentEnemyMove = allEnemyMoves->get(allEnemyMoves, i);
 
-        if (coordinatesMatch(*currentEnemyMove, piece->tile->position))
-        {
+        if (coordinatesMatch(*currentEnemyMove, piece->tile->position)) {
             isInCheck = 1;
         }
     }
 
-    for (byte i = 0; i < allEnemyMoves->length; i++)
-    {
+    for (byte i = 0; i < allEnemyMoves->length; i++) {
         free(allEnemyMoves->get(allEnemyMoves, i));
     }
 
@@ -607,19 +348,16 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board)
     return isInCheck;
 }
 
-byte isInStalemate(Vector *pieces, Piece *piece, Vector *board)
-{
+byte isInStalemate(Vector *pieces, Piece *piece, Vector *board) {
     byte isInStalemate = 0;
 
-    if (piece->type != KING)
-    {
+    if (piece->type != KING) {
         return isInStalemate;
     }
 
     // if the only pieces left are the two kings
     // it is a stalemate
-    if (pieces->length == 2)
-    {
+    if (pieces->length == 2) {
         return 1;
     }
 
@@ -627,13 +365,11 @@ byte isInStalemate(Vector *pieces, Piece *piece, Vector *board)
     // it is a stalemate
     Vector *possibleMoves = getLegalMoves(pieces, piece, board);
 
-    if (possibleMoves->length == 0)
-    {
+    if (possibleMoves->length == 0) {
         isInStalemate = 1;
     }
 
-    for (byte i = 0; i < possibleMoves->length; i++)
-    {
+    for (byte i = 0; i < possibleMoves->length; i++) {
         free(possibleMoves->get(possibleMoves, i));
     }
 
@@ -644,41 +380,44 @@ byte isInStalemate(Vector *pieces, Piece *piece, Vector *board)
 
 // If the piece is both in check and in stalemate
 // it is a checkmate
-byte isInCheckmate(Vector *pieces, Piece *piece, Vector *board)
-{
+byte isInCheckmate(Vector *pieces, Piece *piece, Vector *board) {
     return isInCheck(pieces, piece, board) && isInStalemate(pieces, piece, board);
 }
 
-// !!This should return seed
-byte *placePiecesRandomly(Vector *board, Vector *pieces)
-{
-    byte *seed = calloc(sizeof(byte), pieces->length * 2 + 1);
+byte *placePiecesRandomly(Vector *board, Vector *pieces) {
+    byte *seed = calloc(sizeof(byte), calculateSeedLength(pieces->length));
+
+    if (seed == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+
+    // write the board size to the seed
     seed[0] = board->length;
-    for (byte i = 0; i < pieces->length; i++)
-    {
+
+    for (byte i = 0; i < pieces->length; i++) {
         Piece *currentPiece = pieces->get(pieces, i);
 
         byte x, y;
         Tile *currentTile;
 
-        do
-        {
+        do {
             x = rand() % board->length;
             y = rand() % board->length;
 
             currentTile = getTileFromBoard(board, x, y);
 
-            if (currentTile->piece != NULL)
-            {
+            if (currentTile->piece != NULL) {
                 continue;
             }
 
             currentPiece->tile = currentTile;
         } while (currentTile->piece != NULL || (currentPiece->type == KING && isInCheck(pieces, currentPiece, board)));
 
-        // printf("%d %d\n",x,y);
         currentPiece->tile = currentTile;
         currentTile->piece = currentPiece;
+
+        // write the starting coordinates to the seed
         seed[(i * 2) + 1] = x;
         seed[(i * 2) + 2] = y;
     }
@@ -686,15 +425,13 @@ byte *placePiecesRandomly(Vector *board, Vector *pieces)
     return seed;
 }
 
-void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end)
-{
+void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
     // check if the move is a capture
     Tile *endTile = getTileFromBoard(board, end.x, end.y);
 
     Piece *pieceTaken = NULL;
 
-    if (endTile->piece != NULL)
-    {
+    if (endTile->piece != NULL) {
         pieceTaken = endTile->piece;
         pieceTaken->isTaken = 1;
     }
@@ -712,37 +449,46 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end)
     moves->push(moves, move);
 }
 
-// ! free memory
-void makeLegalMove(Vector *moves, Vector *pieces, Vector *board)
-{
-    // ask the user which piece to move
-    // here we enter the piece as a string
-    // ie. KG for white king, R1 for white rook 1
-    printf("Which piece do you want to move? [KG/R1/R2]\n> ");
-    char piece[3];
-    scanf("%2s", piece);
+// sets the type of the tiles to POSSIBLE_MOVE
+// for all legal moves of the piece
+void setPossibleMoves(Vector *board, Vector *legalMoves) {
+    for (byte i = 0; i < legalMoves->length; i++) {
+        Coordinate *currentMove = legalMoves->get(legalMoves, i);
 
-    Piece *selectedPiece = NULL;
+        Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
+        currentTile->type = POSSIBLE_MOVE;
+    }
+}
 
-    for (byte i = 0; i < pieces->length; i++)
-    {
-        Piece *currentPiece = pieces->get(pieces, i);
+void removePossibleMoves(Vector *board) {
+    for (byte i = 0; i < board->length; i++) {
+        Vector *row = board->get(board, i);
 
-        if (currentPiece->isWhite)
-        {
-            if ((currentPiece->type == KING && strcmp(piece, "KG") == 0) ||
-                (currentPiece->type == ROOK_1 && strcmp(piece, "R1") == 0) ||
-                (currentPiece->type == ROOK_2 && strcmp(piece, "R2") == 0))
-            {
-                selectedPiece = currentPiece;
-                break;
+        for (byte j = 0; j < row->length; j++) {
+            Tile *currentTile = row->get(row, j);
+
+            if (currentTile->type == POSSIBLE_MOVE) {
+                currentTile->type = NORMAL;
             }
         }
     }
+}
 
-    if (selectedPiece == NULL)
-    {
+// ! free memory
+void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
+    // ask the user which piece to move
+    // here we enter the piece as a string
+    // ie. KG for white king, R1 for white rook 1
+    // ! make sure the user can't move the black pieces
+    printf("Which piece do you want to move? [KG/R1/R2]\n> ");
+    char pieceName[3];
+    scanf("%2s", pieceName);
+
+    Piece *selectedPiece = getPieceByName(pieces, pieceName);
+
+    if (selectedPiece == NULL) {
         printf("Invalid piece\n");
+
         waitForEnter();
         return;
     }
@@ -750,13 +496,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board)
     Vector *legalMoves = getLegalMoves(pieces, selectedPiece, board);
 
     // mark all tiles with possible moves
-    for (byte i = 0; i < legalMoves->length; i++)
-    {
-        Coordinate *currentMove = legalMoves->get(legalMoves, i);
-
-        Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
-        currentTile->type = POSSIBLE_MOVE;
-    }
+    setPossibleMoves(board, legalMoves);
 
     printBoard(board);
 
@@ -765,17 +505,17 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board)
     unsigned short row, column;
 
     // %hhu is not reliable so we use this
-    if (scanf("%hu, %hu", &row, &column) != 2)
-    {
+    if (scanf("%hu, %hu", &row, &column) != 2) {
         printf("Invalid input format. Please enter as [row, column]\n");
+
         waitForEnter();
         return;
     }
 
     // check if row or column isn't within uint8_t range
-    if (row > UCHAR_MAX || column > UCHAR_MAX)
-    {
+    if (row > UCHAR_MAX || column > UCHAR_MAX) {
         printf("Invalid input\n");
+
         waitForEnter();
         return;
     }
@@ -785,27 +525,25 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board)
     // check if the move is legal
     byte isLegal = 0;
 
-    for (byte i = 0; i < legalMoves->length; i++)
-    {
+    for (byte i = 0; i < legalMoves->length; i++) {
         Coordinate *currentMove = legalMoves->get(legalMoves, i);
 
-        if (coordinatesMatch(*currentMove, *newCoordinate))
-        {
+        if (coordinatesMatch(*currentMove, *newCoordinate)) {
             isLegal = 1;
             break;
         }
     }
 
-    if (!isLegal)
-    {
+    if (!isLegal) {
         printf("Illegal move\n");
-        waitForEnter();
+
         free(newCoordinate);
+
+        waitForEnter();
         return;
     }
 
-    for (byte i = 0; i < legalMoves->length; i++)
-    {
+    for (byte i = 0; i < legalMoves->length; i++) {
         free(legalMoves->get(legalMoves, i));
     }
 
@@ -816,12 +554,11 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board)
     free(newCoordinate);
 }
 
-void undoMove(Vector *moves, Vector *board)
-{
-    if (moves->length == 0)
-    {
+void undoMove(Vector *moves, Vector *board) {
+    if (moves->length == 0) {
         printf("No moves to undo\n");
         waitForEnter();
+
         return;
     }
 
@@ -839,22 +576,7 @@ void undoMove(Vector *moves, Vector *board)
     free(lastMove);
 }
 
-void printMove(Move *move)
-{
-    printf("%s %s ", move->piece->isWhite ? "White" : "Black", move->piece->type == KING ? "king" : "rook");
-    printf("(%d, %d) -> ", move->start.x + 1, move->start.y + 1);
-    printf("(%d, %d)", move->end.x + 1, move->end.y + 1);
-
-    if (move->pieceTaken != NULL)
-    {
-        printf(" (piece taken: %s %s)", move->pieceTaken->isWhite ? "white" : "black", move->pieceTaken->type == KING ? "king" : "rook");
-    }
-
-    printf("\n");
-}
-
-void runChessGame(byte boardSize)
-{
+void runChessGame(byte boardSize) {
     Vector *board = createBoard(boardSize);
 
     Vector *pieces = initVector();
@@ -862,97 +584,75 @@ void runChessGame(byte boardSize)
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
     pieces->push(pieces, createPiece(board, 0, 0, ROOK_2, 1));
     // ! for testing purposes
-    pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 0));
+    // pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 0));
     pieces->push(pieces, createPiece(board, 0, 0, KING, 0));
     pieces->push(pieces, createPiece(board, 0, 0, KING, 1));
-
-    // testing positions
-    // pieces->push(pieces, createPiece(board, 5, 4, ROOK_1, 1));
-    // pieces->push(pieces, createPiece(board, 3, 7, ROOK_2, 1));
-    // pieces->push(pieces, createPiece(board, 3, 0, KING, 1));
-    // pieces->push(pieces, createPiece(board, 5, 1, KING, 0));
-
-    // pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
-    // pieces->push(pieces, createPiece(board, 6, 6, ROOK_2, 1));
-    // pieces->push(pieces, createPiece(board, 0, 1, KING, 1));
-    // pieces->push(pieces, createPiece(board, 7, 7, KING, 0));
 
     byte *seed = placePiecesRandomly(board, pieces);
 
     Vector *moves = initVector();
 
-    while (1)
-    {
+    Piece *whiteKing = getPieceByName(pieces, "KG");
+    Piece *blackKing = getPieceByName(pieces, "kg");
+
+    if (whiteKing == NULL || blackKing == NULL) {
+        printf("Failed to find kings\n");
+
+        exit(1);
+    }
+
+    while (1) {
         printBoard(board);
 
-        // ! Use a better way to get the black king
-        if (isInCheckmate(pieces, pieces->get(pieces, 3), board))
-        {
+        if (isInCheckmate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
             printf("Checkmate\n");
-            writeToFile("replay.bin", seed, pieces->length * 2 + 1, moves); //!! Finish later
+
+            writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
+
             break;
         }
 
-        if (isInCheck(pieces, pieces->get(pieces, 3), board))
-        {
+        if (isInCheck(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
             printf("Check\n");
         }
 
-        if (isInStalemate(pieces, pieces->get(pieces, 3), board))
-        {
+        if (isInStalemate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
             printf("Stalemate\n");
-            writeToFile("replay.bin", seed, pieces->length * 2 + 1, moves); //!! Finish later
+
+            writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
+
             break;
         }
 
         makeLegalMove(moves, pieces, board);
 
-        // remove all possible moves
-        for (byte i = 0; i < board->length; i++)
-        {
-            Vector *row = board->get(board, i);
-
-            for (byte j = 0; j < row->length; j++)
-            {
-                Tile *currentTile = row->get(row, j);
-
-                if (currentTile->type == POSSIBLE_MOVE)
-                {
-                    currentTile->type = NORMAL;
-                }
-            }
-        }
+        removePossibleMoves(board);
 
         clearScreen();
 
-        if (moves->length > 0)
-        {
+        if (moves->length > 0) {
             printf("Your move: ");
             printMove(moves->get(moves, moves->length - 1));
         }
     }
 
     // free memory
-    for (byte i = 0; i < moves->length; i++)
-    {
+    for (byte i = 0; i < moves->length; i++) {
         free(moves->get(moves, i));
     }
 
     freeVector(moves);
 
-    for (byte i = 0; i < pieces->length; i++)
-    {
+    for (byte i = 0; i < pieces->length; i++) {
         free(pieces->get(pieces, i));
     }
 
     freeVector(pieces);
 
-    for (byte i = 0; i < board->length; i++)
-    {
+    for (byte i = 0; i < board->length; i++) {
         Vector *row = board->get(board, i);
 
-        for (byte j = 0; j < row->length; j++)
-        {
+        for (byte j = 0; j < row->length; j++) {
             free(row->get(row, j));
         }
 

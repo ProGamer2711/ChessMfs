@@ -53,4 +53,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-replay.bin
+
+*.bin

@@ -8,66 +8,58 @@
 #include "Menu.c"
 // ! Check if this import is needed later
 // it is currently used to not have to compile with Vector.c
-#include "Vector.c"
+#include "Printing.c"
 #include "Replay.c"
+#include "Vector.c"
 
 // ? Should this be a global variable or should it be passed along?
 byte currentBoardSize = 8;
 
-void changeBoardSize()
-{
+void changeBoardSize() {
     clearScreen();
 
     unsigned short newBoardSize;
 
-    printf("Enter new board size: ");
+    printf("Enter new board size\n> ");
     scanf("%hu", &newBoardSize);
 
-    if (newBoardSize < MIN_BOARD_SIZE || newBoardSize > MAX_BOARD_SIZE)
-    {
+    if (newBoardSize < MIN_BOARD_SIZE || newBoardSize > MAX_BOARD_SIZE) {
         printf("Invalid board size\n");
-    }
-    else
-    {
+    } else {
         currentBoardSize = newBoardSize;
     }
 }
 
-void executeSelection(byte selection)
-{
-    switch (selection)
-    {
-    case 1:
-        runChessGame(currentBoardSize);
-        break;
-    case 2:
-        changeBoardSize();
-        break;
-    case 3:
-        replayGame();
-        break;
-    case 4:
-        exit(0);
-        break;
-    default:
-        printf("Invalid selection\n");
-        break;
-    }
+void executeSelection(byte selection) {
+    switch (selection) {
+        case 1:
+            runChessGame(currentBoardSize);
 
-    waitForEnter();
+            break;
+        case 2:
+            changeBoardSize();
+            break;
+        case 3:
+            replayGame();
+            break;
+        case 4:
+            exit(0);
+            break;
+        default:
+            printf("Invalid selection\n");
+            break;
+    }
 }
 
-int main()
-{
+int main() {
     srand(time(NULL));
 
     // byte seed[9] = {8, 0, 0, 1, 1, 2, 2, 7, 7};
     // Move *move1 = createMove();
 
-    // writeToFile("replay.bin", seed, moves, 3);
+    // writeReplayToFile("replay.bin", seed, moves, 3);
 
-    // runMainMenu(executeSelection);
-    printf("%ld", sizeof(Move));
+    runMainMenu(executeSelection);
 
     return 0;
 }
