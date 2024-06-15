@@ -385,6 +385,7 @@ byte isInCheckmate(Vector *pieces, Piece *piece, Vector *board) {
 }
 
 byte *placePiecesRandomly(Vector *board, Vector *pieces) {
+    byte currentSeedLength = 0;
     byte *seed = calloc(sizeof(byte), calculateSeedLength(pieces->length));
 
     if (seed == NULL) {
@@ -393,7 +394,10 @@ byte *placePiecesRandomly(Vector *board, Vector *pieces) {
     }
 
     // write the board size to the seed
-    seed[0] = board->length;
+    seed[currentSeedLength++] = board->length;
+
+    // write the piece count to the seed
+    seed[currentSeedLength++] = pieces->length;
 
     for (byte i = 0; i < pieces->length; i++) {
         Piece *currentPiece = pieces->get(pieces, i);
@@ -418,8 +422,8 @@ byte *placePiecesRandomly(Vector *board, Vector *pieces) {
         currentTile->piece = currentPiece;
 
         // write the starting coordinates to the seed
-        seed[(i * 2) + 1] = x;
-        seed[(i * 2) + 2] = y;
+        seed[currentSeedLength++] = x;
+        seed[currentSeedLength++] = y;
     }
 
     return seed;

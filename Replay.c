@@ -8,8 +8,11 @@
 #include "Menu.h"
 #include "Vector.h"
 
+// 1 byte for board size
+// 1 byte for piece count
+// 2 bytes for each piece's position
 byte calculateSeedLength(byte pieceCount) {
-    return pieceCount * 2 + 1;
+    return 2 + pieceCount * 2;
 }
 
 void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
