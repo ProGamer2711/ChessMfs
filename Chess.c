@@ -5,11 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Constants.h"
 #include "Menu.h"
 #include "Vector.h"
-
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
 
 Coordinate *createCoordinate(byte x, byte y) {
     Coordinate *coordinate = (Coordinate *)malloc(sizeof(Coordinate));
@@ -80,6 +78,7 @@ Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite) 
     piece->tile = getTileFromBoard(board, x, y);
     piece->type = type;
     piece->isWhite = isWhite;
+    piece->isTaken = 0;
 
     // ! used for debugging
     // piece->tile->piece = piece;
@@ -411,6 +410,10 @@ Vector *getLegalMoves(Vector *pieces, Piece *piece, Vector *board) {
         for (byte i = 0; i < pieces->length; i++) {
             Piece *currentPiece = pieces->get(pieces, i);
 
+            if (currentPiece->isTaken) {
+                continue;
+            }
+
             if (currentPiece->isWhite != piece->isWhite) {
                 Vector *currentEnemyMoves = getPossibleMoves(currentPiece, board);
 
@@ -474,6 +477,10 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
 
     for (byte i = 0; i < pieces->length; i++) {
         Piece *currentPiece = pieces->get(pieces, i);
+
+        if (currentPiece->isTaken) {
+            continue;
+        }
 
         if (currentPiece->isWhite != piece->isWhite) {
             Vector *currentEnemyMoves = getPossibleMoves(currentPiece, board);
@@ -573,6 +580,7 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
 
     if (endTile->piece != NULL) {
         pieceTaken = endTile->piece;
+        pieceTaken->isTaken = 1;
     }
 
     // move the piece
@@ -694,6 +702,7 @@ void undoMove(Vector *moves, Vector *board) {
 
     startTile->piece = lastMove->piece;
     endTile->piece = lastMove->pieceTaken;
+    lastMove->pieceTaken->isTaken = 0;
 
     lastMove->piece->tile = startTile;
 

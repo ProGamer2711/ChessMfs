@@ -10,4 +10,7 @@
 
 #define MAX_FILE_NAME_LENGTH 100
 
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 typedef uint8_t byte;

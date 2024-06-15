@@ -29,6 +29,7 @@ typedef struct Tile Tile;
 typedef struct Piece {
     PieceType type;
     byte isWhite;
+    byte isTaken;
     Tile* tile;
 } Piece;
 
