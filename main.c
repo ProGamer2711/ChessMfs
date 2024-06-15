@@ -54,11 +54,6 @@ void executeSelection(byte selection) {
 int main() {
     srand(time(NULL));
 
-    // byte seed[9] = {8, 0, 0, 1, 1, 2, 2, 7, 7};
-    // Move *move1 = createMove();
-
-    // writeReplayToFile("replay.bin", seed, moves, 3);
-
     runMainMenu(executeSelection);
 
     return 0;

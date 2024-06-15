@@ -394,6 +394,8 @@ byte isInCheckmate(Vector *pieces, Piece *piece, Vector *board) {
     return isInCheck(pieces, piece, board) && isInStalemate(pieces, piece, board);
 }
 
+// This function places the pieces randomly on the board
+// and returns a seed for the replay file
 byte *placePiecesRandomly(Vector *board, Vector *pieces) {
     byte currentSeedLength = 0;
     byte *seed = calloc(sizeof(byte), calculateSeedLength(pieces->length));
