@@ -21,13 +21,13 @@ void printMainMenu() {
     printf("4. Exit\n");
 }
 
-void runMainMenu(ExecuteSelectionFunction executeSelection) {
+void runMenu(PrintMenuFunction printMenu, ExecuteSelectionFunction executeSelection) {
     unsigned short currentChoice = 0;
 
     while (1) {
         clearScreen();
 
-        printMainMenu();
+        printMenu();
 
         printf("> ");
         scanf("%hu", &currentChoice);

@@ -54,7 +54,7 @@ void executeSelection(byte selection) {
 int main() {
     srand(time(NULL));
 
-    runMainMenu(executeSelection);
+    runMenu(printMainMenu, executeSelection);
 
     return 0;
 }
