@@ -509,6 +509,15 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         return;
     }
 
+    // if the selected piece is not white
+    // we can't move it
+    if (!selectedPiece->isWhite) {
+        printf("You can't move that piece\n");
+
+        waitForEnter();
+        return;
+    }
+
     Vector *legalMoves = getLegalMoves(pieces, selectedPiece, board);
 
     // mark all tiles with possible moves
@@ -621,7 +630,7 @@ void runChessGame(byte boardSize) {
         printBoard(board);
 
         if (isInCheckmate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
-            printf("Checkmate\n");
+            printf("Game over: Checkmate\n");
 
             writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
 
@@ -633,7 +642,7 @@ void runChessGame(byte boardSize) {
         }
 
         if (isInStalemate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
-            printf("Stalemate\n");
+            printf("Game over: Stalemate\n");
 
             writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
 
