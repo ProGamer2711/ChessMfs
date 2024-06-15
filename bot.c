@@ -59,8 +59,12 @@ double min_max(Vector* moves,Vector* board, Vector* pieces, byte depth, byte whi
                 undoMove(moves,board);
             }
         }
+
+        if(maxx==1e9)
+        {
+            return -depth*1000;
+        }
         
-        // freeVector(old_pieces);
         return maxx;
     }
     else
@@ -87,7 +91,10 @@ double min_max(Vector* moves,Vector* board, Vector* pieces, byte depth, byte whi
             }
         }
 
-        // freeVector(old_pieces);
+        if(minn==1e9)
+        {
+            return depth*1000;
+        }
         return minn;
     }
 }

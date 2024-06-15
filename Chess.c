@@ -669,7 +669,7 @@ void runChessGame(byte boardSize) {
         removePossibleMoves(board);
 
 
-        // clearScreen();
+        clearScreen();
 
         if (moves->length > 0) {
             printf("Your move: ");
