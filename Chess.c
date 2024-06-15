@@ -9,6 +9,7 @@
 #include "Menu.h"
 #include "Printing.h"
 #include "Replay.h"
+#include "bot.h"
 #include "Vector.h"
 
 Coordinate *createCoordinate(byte x, byte y) {
@@ -594,7 +595,11 @@ void undoMove(Vector *moves, Vector *board) {
 
     startTile->piece = lastMove->piece;
     endTile->piece = lastMove->pieceTaken;
-    lastMove->pieceTaken->isTaken = 0;
+
+    if(lastMove->pieceTaken!=NULL)
+    {
+        lastMove->pieceTaken->isTaken = 0;
+    }
 
     lastMove->piece->tile = startTile;
 
@@ -626,6 +631,7 @@ void runChessGame(byte boardSize) {
         exit(1);
     }
 
+    byte playerTurn=1;
     while (1) {
         printBoard(board);
 
@@ -649,11 +655,21 @@ void runChessGame(byte boardSize) {
             break;
         }
 
-        makeLegalMove(moves, pieces, board);
+        if(playerTurn)
+        {
+            makeLegalMove(moves, pieces, board);
+            playerTurn=0;
+        }
+        else
+        {
+            blackTurn(moves,board,pieces);
+            playerTurn=1;
+        }
 
         removePossibleMoves(board);
 
-        clearScreen();
+
+        // clearScreen();
 
         if (moves->length > 0) {
             printf("Your move: ");

@@ -6,6 +6,7 @@
 #include "Chess.c"
 #include "Constants.h"
 #include "Menu.c"
+#include "bot.c"
 // ! Check if this import is needed later
 // it is currently used to not have to compile with Vector.c
 #include "Printing.c"

@@ -46,6 +46,9 @@ typedef struct Move {
     Piece* pieceTaken;
 } Move;
 
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 Coordinate* createCoordinate(byte x, byte y);
 
 Piece* getPieceByName(Vector* pieces, char* pieceName);
