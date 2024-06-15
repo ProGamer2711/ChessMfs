@@ -34,7 +34,6 @@ void executeSelection(byte selection) {
     switch (selection) {
         case 1:
             runChessGame(currentBoardSize);
-
             break;
         case 2:
             changeBoardSize();

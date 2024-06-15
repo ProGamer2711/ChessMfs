@@ -46,6 +46,14 @@ typedef struct Move {
     Piece* pieceTaken;
 } Move;
 
-void printBoard(Vector* board);
+Coordinate* createCoordinate(byte x, byte y);
+
+Piece* getPieceByName(Vector* pieces, char* pieceName);
+
+void makeMove(Vector* moves, Vector* board, Piece* piece, Coordinate end);
+
+void undoMove(Vector* moves, Vector* board);
 
 void runChessGame(byte boardSize);
+
+void initializeReplay(byte boardSize, Vector* pieceStartPositions, Vector** boardVector, Vector** piecesVector, Vector** movesVector);

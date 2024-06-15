@@ -394,6 +394,31 @@ byte isInCheckmate(Vector *pieces, Piece *piece, Vector *board) {
     return isInCheck(pieces, piece, board) && isInStalemate(pieces, piece, board);
 }
 
+// sets the type of the tiles to POSSIBLE_MOVE
+// for all legal moves of the piece
+void setPossibleMoves(Vector *board, Vector *legalMoves) {
+    for (byte i = 0; i < legalMoves->length; i++) {
+        Coordinate *currentMove = legalMoves->get(legalMoves, i);
+
+        Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
+        currentTile->type = POSSIBLE_MOVE;
+    }
+}
+
+void removePossibleMoves(Vector *board) {
+    for (byte i = 0; i < board->length; i++) {
+        Vector *row = board->get(board, i);
+
+        for (byte j = 0; j < row->length; j++) {
+            Tile *currentTile = row->get(row, j);
+
+            if (currentTile->type == POSSIBLE_MOVE) {
+                currentTile->type = NORMAL;
+            }
+        }
+    }
+}
+
 // This function places the pieces randomly on the board
 // and returns a seed for the replay file
 byte *placePiecesRandomly(Vector *board, Vector *pieces) {
@@ -463,31 +488,6 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
     Move *move = createMove(piece, startTile->position, end, pieceTaken);
 
     moves->push(moves, move);
-}
-
-// sets the type of the tiles to POSSIBLE_MOVE
-// for all legal moves of the piece
-void setPossibleMoves(Vector *board, Vector *legalMoves) {
-    for (byte i = 0; i < legalMoves->length; i++) {
-        Coordinate *currentMove = legalMoves->get(legalMoves, i);
-
-        Tile *currentTile = getTileFromBoard(board, currentMove->x, currentMove->y);
-        currentTile->type = POSSIBLE_MOVE;
-    }
-}
-
-void removePossibleMoves(Vector *board) {
-    for (byte i = 0; i < board->length; i++) {
-        Vector *row = board->get(board, i);
-
-        for (byte j = 0; j < row->length; j++) {
-            Tile *currentTile = row->get(row, j);
-
-            if (currentTile->type == POSSIBLE_MOVE) {
-                currentTile->type = NORMAL;
-            }
-        }
-    }
 }
 
 // ! free memory
@@ -676,4 +676,31 @@ void runChessGame(byte boardSize) {
     }
 
     freeVector(board);
+}
+
+void initializeReplay(byte boardSize, Vector *pieceStartPositions, Vector **boardVector, Vector **piecesVector, Vector **movesVector) {
+    Vector *board = createBoard(boardSize);
+
+    Vector *pieces = initVector();
+
+    // Our current order is white rook 1, white rook 2, black king, white king
+    PieceType pieceTypes[] = {ROOK_1, ROOK_2, KING, KING};
+    byte isWhite[] = {1, 1, 0, 1};
+
+    for (byte i = 0; i < pieceStartPositions->length; i++) {
+        Coordinate *currentCoordinate = pieceStartPositions->get(pieceStartPositions, i);
+
+        Piece *newPiece = createPiece(board, currentCoordinate->x, currentCoordinate->y, pieceTypes[i], isWhite[i]);
+
+        pieces->push(pieces, newPiece);
+
+        // set the position of the piece on the board
+        Tile *currentTile = getTileFromBoard(board, currentCoordinate->x, currentCoordinate->y);
+
+        currentTile->piece = newPiece;
+    }
+
+    *boardVector = board;
+    *piecesVector = pieces;
+    *movesVector = initVector();
 }
