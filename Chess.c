@@ -355,9 +355,19 @@ byte isInStalemate(Vector *pieces, Piece *piece, Vector *board) {
         return isInStalemate;
     }
 
-    // if the only pieces left are the two kings
+    // if the only pieces not taken are the two kings
     // it is a stalemate
-    if (pieces->length == 2) {
+    byte piecesNotTaken = 0;
+
+    for (byte i = 0; i < pieces->length; i++) {
+        Piece *currentPiece = pieces->get(pieces, i);
+
+        if (!currentPiece->isTaken) {
+            piecesNotTaken++;
+        }
+    }
+
+    if (piecesNotTaken == 2) {
         return 1;
     }
 

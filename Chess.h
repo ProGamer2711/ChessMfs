@@ -14,7 +14,7 @@ typedef struct Coordinate {
 } Coordinate;
 
 typedef enum PieceType {
-    KING,
+    KING = 1,
     ROOK_1,
     ROOK_2
 } PieceType;
