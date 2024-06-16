@@ -24,14 +24,20 @@ double staticEvaluation(Vector* board, Vector* pieces) {
         material += tempMat;
     }
 
-    // TBD add evaluation for king freedom
+
     return material;
 }
 
 // white is maxxer
 double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whitePlayer) {
+    Piece* blackKing = getPieceByName(pieces,"kg");
+    Piece* whiteKing = getPieceByName(pieces,"KG");
+
+    // This should prevent king sacking
+    if(blackKing->isTaken)return 1e9;
+    if(whiteKing->isTaken)return -1e9;
+
     if (depth == 0) {
-        // Is game over check needed
         return staticEvaluation(board, pieces);
     }
 
@@ -98,7 +104,6 @@ void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
 
     double bestEval = 1e9 + 1;
 
-    printf("Black's Turn\n");
 
     for (byte i = 0; i < pieces->length; i++) {
         Piece* currentPiece = pieces->get(pieces, i);
@@ -110,12 +115,9 @@ void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
         for (byte i = 0; i < legalMoves->length; i++) {
             Coordinate* move = legalMoves->get(legalMoves, i);
 
-            printf("Making move:\n");
             makeMove(moves, board, currentPiece, *move);
 
-            printf("Calling minmax:\n");
             double result = minMax(moves, board, pieces, MAX_DEPTH, 1);
-            printf("%lf ", result);
 
             if (result < bestEval) {
                 ansPiece = currentPiece;
@@ -123,11 +125,9 @@ void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
                 bestEval = result;
             }
 
-            printf("Undoing move\n");
             undoMove(moves, board);
         }
     }
 
-    printf("Making last move:\n");
     makeMove(moves, board, ansPiece, ansMove);
 }
