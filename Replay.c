@@ -75,13 +75,24 @@ void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
     fclose(file);
 }
 
-static byte executeReplaySelection(byte selection) {
+static byte executeReplaySelection(byte selection, FILE* file, Vector* pieceStartingPositions, Vector* board, Vector* pieces, Vector* moves) {
     switch (selection) {
         case 1:
             return 1;
         case 2:
             return 1;
         case 3:
+            byte position[2], takenPieceType;
+            fread(position, sizeof(byte), 2, file);
+            Tile* tile = getTileFromBoard(board, position[0], position[1]);
+
+            fread(position, sizeof(byte), 2, file);
+            Coordinate endCoordinate = { position[0], position[1] };
+
+            fread(&takenPieceType, sizeof(byte), 1, file);
+
+            makeMove(moves, board, tile->piece, endCoordinate);
+
             return 1;
         case 4:
             return 1;
@@ -125,8 +136,8 @@ void replayGame() {
     for (int i = 0; i < numberOfPieces; i++) {
         byte position[2];
         fread(position, sizeof(byte), 2, file);
-        Coordinate *coordnate = createCoordinate(position[0], position[1]);
-        pieceStartingPositions->push(pieceStartingPositions, coordnate);
+        Coordinate *coordinate = createCoordinate(position[0], position[1]);
+        pieceStartingPositions->push(pieceStartingPositions, coordinate);
     }
 
     initializeReplay(boardSize, pieceStartingPositions, &board, &pieces, &moves);
@@ -137,7 +148,10 @@ void replayGame() {
     //     printf("x: %d, y:%d     ", coord->x, coord->y);
     // }
 
-    // runReplayMenu(printReplayMenu, executeReplaySelection);
+    runReplayMenu(executeReplaySelection, file, pieceStartingPositions, board, pieces, moves);
 
     fclose(file);
+
+    // free stuff later
+    // freeVector(pieceStartingPositions);
 }
