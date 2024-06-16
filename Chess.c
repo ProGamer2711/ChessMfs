@@ -63,6 +63,20 @@ static Vector *createBoard(byte boardSize) {
     return board;
 }
 
+void freeBoard(Vector* board) { 
+    for (byte i = 0; i < board->length; i++) {
+        Vector *row = board->get(board, i);
+
+        for (byte j = 0; j < row->length; j++) {
+            free(row->get(row, j));
+        }
+
+        freeVector(row);
+    }
+
+    freeVector(board);
+}
+
 Tile *getTileFromBoard(Vector *board, byte x, byte y) {
     Vector *row = board->get(board, x);
     Tile *tile = row->get(row, y);
@@ -718,17 +732,7 @@ void runChessGame(byte boardSize) {
 
     freeVector(pieces);
 
-    for (byte i = 0; i < board->length; i++) {
-        Vector *row = board->get(board, i);
-
-        for (byte j = 0; j < row->length; j++) {
-            free(row->get(row, j));
-        }
-
-        freeVector(row);
-    }
-
-    freeVector(board);
+    freeBoard(board);
 }
 
 void initializeReplay(byte boardSize, Vector *pieceStartPositions, Vector **boardVector, Vector **piecesVector, Vector **movesVector) {

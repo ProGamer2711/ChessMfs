@@ -53,6 +53,8 @@ typedef struct Move {
 PieceType pieceTypes[PIECE_COUNT] = {ROOK_1, ROOK_2, KING, KING};
 byte isWhite[PIECE_COUNT] = {1, 1, 0, 1};
 
+void freeBoard(Vector* board);
+
 Coordinate* createCoordinate(byte x, byte y);
 
 Tile* getTileFromBoard(Vector* board, byte x, byte y);
