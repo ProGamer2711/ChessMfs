@@ -3,6 +3,8 @@
 #include "Chess.h"
 #include "Constants.h"
 
+#define MOVE_SIZE 5
+
 byte calculateSeedLength(byte pieceCount);
 
 byte hasNextMove(FILE *file);

@@ -9,8 +9,6 @@
 #include "Menu.h"
 #include "Vector.h"
 
-#define MOVE_SIZE 5
-
 // 1 byte for board size
 // 1 byte for piece count
 // 2 bytes for each piece's position
@@ -110,10 +108,11 @@ static void goToStartOfGame(FILE* file, Vector* pieceStartingPositions, Vector**
 
 static void goOneMoveBackward(FILE* file, Vector* board, Vector* pieces, Vector* moves) {
     long positionInFile = ftell(file);
-        if(positionInFile > calculateSeedLength(pieces->length)) {
-            fseek(file, -MOVE_SIZE, SEEK_CUR);
-            undoMove(moves, board);
-        }
+
+    if (positionInFile > calculateSeedLength(pieces->length)) {
+        fseek(file, -MOVE_SIZE, SEEK_CUR);
+        undoMove(moves, board);
+    }
 }
 
 static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
@@ -138,7 +137,7 @@ static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
 }
 
 static void goToEndOfGame(FILE* file, Vector* board, Vector* moves) {
-    while(hasNextMove(file)) {
+    while (hasNextMove(file)) {
         goOneMoveForward(file, board, moves);
     }
 }
@@ -202,22 +201,19 @@ void replayGame() {
     for (byte i = 0; i < numberOfPieces; i++) {
         byte position[2];
         fread(position, sizeof(byte), 2, file);
+
         Coordinate* coordinate = createCoordinate(position[0], position[1]);
+
         pieceStartingPositions->push(pieceStartingPositions, coordinate);
     }
 
     initializeReplay(boardSize, pieceStartingPositions, &board, &pieces, &moves);
 
-    // printf("%d, %d  ", boardSize, numberOfPieces);
-    // for(int i=0; i < pieceStartingPositions->length;i++) {
-    //     Coordinate* coord = pieceStartingPositions->get(pieceStartingPositions, i);
-    //     printf("x: %d, y:%d     ", coord->x, coord->y);
-    // }
-
     runReplayMenu(executeReplaySelection, file, pieceStartingPositions, &board, &pieces, &moves);
 
     fclose(file);
 
-    // free stuff later
-    // freeVector(pieceStartingPositions);
+    // free memory
+    freeReplayArgument(pieceStartingPositions);
+    freeReplayArguments(board, pieces, moves);
 }
