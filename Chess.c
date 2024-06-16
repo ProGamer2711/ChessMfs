@@ -97,9 +97,6 @@ static Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte is
     piece->isWhite = isWhite;
     piece->isTaken = 0;
 
-    // ! used for debugging
-    // piece->tile->piece = piece;
-
     return piece;
 }
 
