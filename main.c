@@ -3,20 +3,17 @@
 #include <time.h>
 
 // ! Change the paths of .h
+#include "Bot.c"
 #include "Chess.c"
 #include "Constants.h"
 #include "Menu.c"
-#include "bot.c"
 // ! Check if this import is needed later
 // it is currently used to not have to compile with Vector.c
 #include "Printing.c"
 #include "Replay.c"
 #include "Vector.c"
 
-// ? Should this be a global variable or should it be passed along?
-byte currentBoardSize = 8;
-
-void changeBoardSize() {
+void changeBoardSize(byte* currentBoardSize) {
     clearScreen();
 
     unsigned short newBoardSize;
@@ -27,18 +24,18 @@ void changeBoardSize() {
     if (newBoardSize < MIN_BOARD_SIZE || newBoardSize > MAX_BOARD_SIZE) {
         printf("Invalid board size\n");
     } else {
-        currentBoardSize = newBoardSize;
+        *currentBoardSize = newBoardSize;
     }
 }
 
-byte executeMainSelection(byte selection) {
+byte executeMainSelection(byte selection, byte* currentBoardSize) {
     switch (selection) {
         case 1:
-            runChessGame(currentBoardSize);
+            runChessGame(*currentBoardSize);
 
             return 1;
         case 2:
-            changeBoardSize();
+            changeBoardSize(currentBoardSize);
 
             return 1;
         case 3:
@@ -59,7 +56,9 @@ byte executeMainSelection(byte selection) {
 int main() {
     srand(time(NULL));
 
-    runMenu(printMainMenu, executeMainSelection);
+    byte currentBoardSize = 8;
+
+    runMainMenu(executeMainSelection, &currentBoardSize);
 
     return 0;
 }

@@ -107,5 +107,5 @@ void replayGame() {
     // remove the \n from the end of the string
     fileName[strlen(fileName) - 1] = '\0';
 
-    runMenu(printReplayMenu, executeReplaySelection);
+    // runReplayMenu(printReplayMenu, executeReplaySelection);
 }

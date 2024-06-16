@@ -5,12 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Bot.h"
 #include "Constants.h"
 #include "Menu.h"
 #include "Printing.h"
 #include "Replay.h"
 #include "Vector.h"
-#include "bot.h"
 
 Coordinate *createCoordinate(byte x, byte y) {
     Coordinate *coordinate = (Coordinate *)malloc(sizeof(Coordinate));

@@ -58,6 +58,8 @@ byte isWhite[PIECE_COUNT] = {1, 1, 0, 1};
 
 Coordinate* createCoordinate(byte x, byte y);
 
+Vector* getLegalMoves(Vector* pieces, Piece* piece, Vector* board);
+
 Piece* getPieceByName(Vector* pieces, char* pieceName);
 
 void makeMove(Vector* moves, Vector* board, Piece* piece, Coordinate end);

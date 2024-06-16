@@ -1,10 +1,12 @@
+#include "Bot.h"
+
 #include <stdio.h>
 
 #include "Chess.h"
 #include "Constants.h"
 #include "Vector.h"
 
-#define MAX_DEPTH 4
+#define MAX_DEPTH 32
 
 double staticEvaluation(Vector* board, Vector* pieces) {
     double material = 0;
@@ -28,7 +30,7 @@ double staticEvaluation(Vector* board, Vector* pieces) {
     return material;
 }
 
-// white is maxer
+// white is max and black is min
 double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whitePlayer) {
     Piece* blackKing = getPieceByName(pieces, "kg");
     Piece* whiteKing = getPieceByName(pieces, "KG");
@@ -128,7 +130,7 @@ void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
 
             makeMove(moves, board, currentPiece, *move);
 
-            double result = minMax(moves, board, pieces, (MAX_DEPTH * 10) / board->length, 1);
+            double result = minMax(moves, board, pieces, MAX_DEPTH / board->length, 1);
 
             if (result < bestEval) {
                 bestPiece = currentPiece;

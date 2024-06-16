@@ -21,6 +21,23 @@ void printMainMenu() {
     printf("4. Exit\n");
 }
 
+void runMainMenu(ExecuteMainSelectionFunction executeSelection, byte* currentBoardSize) {
+    unsigned short currentChoice = 0;
+
+    while (1) {
+        clearScreen();
+
+        printMainMenu();
+
+        printf("> ");
+        scanf("%hu", &currentChoice);
+
+        byte shouldContinue = executeSelection(currentChoice, currentBoardSize);
+
+        if (shouldContinue == 0) return;
+    }
+}
+
 void printReplayMenu() {
     printf("1. To begining of game\n");
     printf("2. Forward\n");
@@ -29,18 +46,18 @@ void printReplayMenu() {
     printf("5. Exit\n");
 }
 
-void runMenu(PrintMenuFunction printMenu, ExecuteSelectionFunction executeSelection) {
+void runReplayMenu(ExecuteReplaySelectionFunction executeSelection, Vector* pieceStartingPositions, Vector* board, Vector* pieces, Vector* moves) {
     unsigned short currentChoice = 0;
 
     while (1) {
         clearScreen();
 
-        printMenu();
+        printReplayMenu();
 
         printf("> ");
         scanf("%hu", &currentChoice);
 
-        byte shouldContinue = executeSelection(currentChoice);
+        byte shouldContinue = executeSelection(currentChoice, pieceStartingPositions, board, pieces, moves);
 
         if (shouldContinue == 0) return;
     }
