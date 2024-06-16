@@ -9,8 +9,8 @@
 #include "Menu.h"
 #include "Printing.h"
 #include "Replay.h"
-#include "bot.h"
 #include "Vector.h"
+#include "bot.h"
 
 Coordinate *createCoordinate(byte x, byte y) {
     Coordinate *coordinate = (Coordinate *)malloc(sizeof(Coordinate));
@@ -492,7 +492,8 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
 }
 
 // ! free memory
-void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
+// returns if the move was successful
+byte makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     // ask the user which piece to move
     // here we enter the piece as a string
     // ie. KG for white king, R1 for white rook 1
@@ -507,7 +508,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         printf("Invalid piece\n");
 
         waitForEnter();
-        return;
+        return 0;
     }
 
     // if the selected piece is not white
@@ -516,7 +517,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         printf("You can't move that piece\n");
 
         waitForEnter();
-        return;
+        return 0;
     }
 
     Vector *legalMoves = getLegalMoves(pieces, selectedPiece, board);
@@ -535,7 +536,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         printf("Invalid input format. Please enter as [row, column]\n");
 
         waitForEnter();
-        return;
+        return 0;
     }
 
     // check if row or column isn't within uint8_t range
@@ -543,7 +544,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         printf("Invalid input\n");
 
         waitForEnter();
-        return;
+        return 0;
     }
 
     Coordinate *newCoordinate = createCoordinate(row - 1, column - 1);
@@ -566,7 +567,7 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         free(newCoordinate);
 
         waitForEnter();
-        return;
+        return 0;
     }
 
     for (byte i = 0; i < legalMoves->length; i++) {
@@ -578,6 +579,8 @@ void makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     makeMove(moves, board, selectedPiece, *newCoordinate);
 
     free(newCoordinate);
+
+    return 1;
 }
 
 void undoMove(Vector *moves, Vector *board) {
@@ -596,8 +599,7 @@ void undoMove(Vector *moves, Vector *board) {
     startTile->piece = lastMove->piece;
     endTile->piece = lastMove->pieceTaken;
 
-    if(lastMove->pieceTaken!=NULL)
-    {
+    if (lastMove->pieceTaken != NULL) {
         lastMove->pieceTaken->isTaken = 0;
     }
 
@@ -631,7 +633,7 @@ void runChessGame(byte boardSize) {
         exit(1);
     }
 
-    byte playerTurn=1;
+    byte playerTurn = 1;
     while (1) {
         printBoard(board);
 
@@ -647,7 +649,7 @@ void runChessGame(byte boardSize) {
             printf("Check\n");
         }
 
-        if ((isInStalemate(pieces, blackKing, board)&&!playerTurn) || (isInStalemate(pieces, whiteKing, board)&&playerTurn)) {
+        if ((isInStalemate(pieces, blackKing, board) && !playerTurn) || (isInStalemate(pieces, whiteKing, board) && playerTurn)) {
             printf("Game over: Stalemate\n");
 
             writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
@@ -655,24 +657,22 @@ void runChessGame(byte boardSize) {
             break;
         }
 
-        if(playerTurn)
-        {
-            makeLegalMove(moves, pieces, board);
-            playerTurn=0;
-        }
-        else
-        {
-            blackTurn(moves,board,pieces);
-            playerTurn=1;
+        if (playerTurn) {
+            if (makeLegalMove(moves, pieces, board)) {
+                playerTurn = 0;
+            }
+        } else {
+            blackTurn(moves, board, pieces);
+
+            playerTurn = 1;
         }
 
         removePossibleMoves(board);
 
-
         clearScreen();
 
         if (moves->length > 0) {
-            printf("Your move: ");
+            printf("Last move: ");
             printMove(moves->get(moves, moves->length - 1));
         }
     }
