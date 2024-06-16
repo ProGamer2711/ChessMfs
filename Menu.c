@@ -2,8 +2,6 @@
 
 #include <stdio.h>
 
-#include "Chess.h"
-
 void clearScreen() {
     system(CLEAR_COMMAND);
 }
@@ -41,26 +39,23 @@ void runMainMenu(ExecuteMainSelectionFunction executeSelection, byte* currentBoa
 }
 
 static void printReplayMenu() {
-    printf("1. Go to the start of the game\n");
-    printf("2. Go one move back\n");
-    printf("3. Go one move forward\n");
-    printf("4. Go to the end of the game\n");
-    printf("5. Return to main menu\n");
+    printf("1. To beginning of game\n");
+    printf("2. Backwards\n");
+    printf("3. Forwards\n");
+    printf("4. To end of game\n");
+    printf("5. Exit\n");
 }
 
 void runReplayMenu(ExecuteReplaySelectionFunction executeSelection, FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
-    Vector* dereferencedBoard = *board;
-    Vector* dereferencedPieces = *pieces;
-
     unsigned short currentChoice = 0;
 
     while (1) {
         clearScreen();
 
-        printBoard(dereferencedBoard);
+        printBoard(*board);
 
-        Piece* whiteKing = getPieceByName(dereferencedPieces, "KG");
-        Piece* blackKing = getPieceByName(dereferencedPieces, "kg");
+        Piece *whiteKing = getPieceByName(*pieces, "KG");
+        Piece *blackKing = getPieceByName(*pieces, "kg");
 
         if (whiteKing == NULL || blackKing == NULL) {
             printf("Failed to find kings\n");
@@ -68,9 +63,9 @@ void runReplayMenu(ExecuteReplaySelectionFunction executeSelection, FILE* file, 
             exit(1);
         }
 
-        if (isInCheckmate(dereferencedPieces, blackKing, dereferencedBoard) || isInCheckmate(dereferencedPieces, whiteKing, dereferencedBoard)) {
+        if (isInCheckmate(*pieces, blackKing, *board) || isInCheckmate(*pieces, whiteKing, *board)) {
             printf("Game Over: Checkmate\n");
-        } else if (isInStalemate(dereferencedPieces, blackKing, dereferencedBoard) || isInStalemate(dereferencedPieces, whiteKing, dereferencedBoard)) {
+        } else if (isInStalemate(*pieces, blackKing, *board) || isInStalemate(*pieces, whiteKing, *board)) {
             printf("Game Over: Stalemate\n");
         }
 
