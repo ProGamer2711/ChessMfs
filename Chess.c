@@ -309,7 +309,7 @@ byte isInCheck(Vector *pieces, Piece *piece, Vector *board) {
     byte isInCheck = 0;
 
     if (piece->type != KING) {
-        return isInCheck;
+        return 0;
     }
 
     Vector *allEnemyMoves = initVector();
@@ -353,7 +353,7 @@ byte isInStalemate(Vector *pieces, Piece *piece, Vector *board) {
     byte isInStalemate = 0;
 
     if (piece->type != KING) {
-        return isInStalemate;
+        return 0;
     }
 
     // if the only pieces not taken are the two kings
@@ -374,17 +374,17 @@ byte isInStalemate(Vector *pieces, Piece *piece, Vector *board) {
 
     // if the piece has no possible moves
     // it is a stalemate
-    Vector *possibleMoves = getLegalMoves(pieces, piece, board);
+    Vector *legalMoves = getLegalMoves(pieces, piece, board);
 
-    if (possibleMoves->length == 0) {
+    if (legalMoves->length == 0) {
         isInStalemate = 1;
     }
 
-    for (byte i = 0; i < possibleMoves->length; i++) {
-        free(possibleMoves->get(possibleMoves, i));
+    for (byte i = 0; i < legalMoves->length; i++) {
+        free(legalMoves->get(legalMoves, i));
     }
 
-    freeVector(possibleMoves);
+    freeVector(legalMoves);
 
     return isInStalemate;
 }
@@ -491,13 +491,11 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
     moves->push(moves, move);
 }
 
-// ! free memory
 // returns if the move was successful
 byte makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     // ask the user which piece to move
     // here we enter the piece as a string
     // ie. KG for white king, R1 for white rook 1
-    // ! make sure the user can't move the black pieces
     printf("Which piece do you want to move? [KG/R1/R2]\n> ");
     char pieceName[3];
     scanf("%2s", pieceName);
@@ -561,6 +559,12 @@ byte makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         }
     }
 
+    for (byte i = 0; i < legalMoves->length; i++) {
+        free(legalMoves->get(legalMoves, i));
+    }
+
+    freeVector(legalMoves);
+
     if (!isLegal) {
         printf("Illegal move\n");
 
@@ -569,12 +573,6 @@ byte makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
         waitForEnter();
         return 0;
     }
-
-    for (byte i = 0; i < legalMoves->length; i++) {
-        free(legalMoves->get(legalMoves, i));
-    }
-
-    freeVector(legalMoves);
 
     makeMove(moves, board, selectedPiece, *newCoordinate);
 
@@ -631,6 +629,7 @@ void runChessGame(byte boardSize) {
     }
 
     byte playerTurn = 1;
+
     while (1) {
         printBoard(board);
 
@@ -674,13 +673,13 @@ void runChessGame(byte boardSize) {
             if (makeLegalMove(moves, pieces, board)) {
                 playerTurn = 0;
             }
+
+            removePossibleMoves(board);
         } else {
             blackTurn(moves, board, pieces);
 
             playerTurn = 1;
         }
-
-        removePossibleMoves(board);
 
         clearScreen();
 
@@ -691,6 +690,8 @@ void runChessGame(byte boardSize) {
     }
 
     // free memory
+    free(seed);
+
     for (byte i = 0; i < moves->length; i++) {
         free(moves->get(moves, i));
     }
