@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Chess.h"
-#include "Constants.h"
 #include "Vector.h"
 
 #define MAX_DEPTH 32

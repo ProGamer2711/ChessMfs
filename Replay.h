@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Chess.h"
+#include <stdio.h>
+
 #include "Constants.h"
+#include "Vector.h"
 
 #define MOVE_SIZE 4
 

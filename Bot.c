@@ -1,6 +1,6 @@
 #include "Bot.h"
 
-#include <stdio.h>
+#include <stdlib.h>
 
 #include "Chess.h"
 #include "Constants.h"

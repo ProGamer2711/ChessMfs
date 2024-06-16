@@ -1,6 +1,5 @@
 #include "Chess.h"
 
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +62,7 @@ static Vector *createBoard(byte boardSize) {
     return board;
 }
 
-void freeBoard(Vector* board) { 
+void freeBoard(Vector *board) {
     for (byte i = 0; i < board->length; i++) {
         Vector *row = board->get(board, i);
 

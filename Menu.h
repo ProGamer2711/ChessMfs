@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdio.h>
+
 #include "Constants.h"
 #include "Vector.h"
 

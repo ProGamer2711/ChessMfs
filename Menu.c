@@ -1,9 +1,12 @@
 #include "Menu.h"
 
-#include <stdio.h>
+#include <stdlib.h>
 
 #include "Chess.h"
+#include "Constants.h"
+#include "Printing.h"
 #include "Replay.h"
+#include "Vector.h"
 
 void clearScreen() {
     system(CLEAR_COMMAND);

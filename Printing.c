@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 
+#include "Chess.h"
+#include "Vector.h"
+
 static void printTile(Tile *tile) {
     if (tile->type == POSSIBLE_MOVE) {
         printf("(");

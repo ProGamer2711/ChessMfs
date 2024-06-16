@@ -2,16 +2,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-// ! Change the paths of .h
-#include "Bot.c"
-#include "Chess.c"
+#include "Chess.h"
 #include "Constants.h"
-#include "Menu.c"
-// ! Check if this import is needed later
-// it is currently used to not have to compile with Vector.c
-#include "Printing.c"
-#include "Replay.c"
-#include "Vector.c"
+#include "Menu.h"
+#include "Replay.h"
 
 void changeBoardSize(byte* currentBoardSize) {
     clearScreen();
