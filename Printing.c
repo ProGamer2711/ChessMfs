@@ -240,4 +240,6 @@ void printStatistics(Vector* moves, Vector* pieces, byte blackInCheckCounter) {
     }
 
     printf("\n");
+
+    printf("The number of pieces captured by the black king was %d\n", capturedPieces(pieces));
 }

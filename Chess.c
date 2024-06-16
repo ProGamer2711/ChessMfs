@@ -169,6 +169,20 @@ byte movesPerPiece(Vector* moves, Piece* piece) {
     return moveCounter;
 }
 
+byte capturedPieces(Vector* pieces) {
+    byte capturedPiecesCounter = 0;
+
+    for(byte i = 0; i < pieces->length; i++) {
+        Piece* currentPiece = pieces->get(pieces, i);
+
+        if(currentPiece->isTaken == 1) {
+            capturedPiecesCounter++;
+        }
+    }
+
+    return capturedPiecesCounter;
+}
+
 static Vector *getPossibleMoves(Piece *piece, Vector *board) {
     Vector *possibleMoves = initVector();
 
@@ -679,7 +693,7 @@ void runChessGame(byte boardSize) {
 
             getchar();
 
-            printf("Do you want to save the replay? [y/n]\n> ");
+            printf("\nDo you want to save the replay? [y/n]\n> ");
             char saveReplay;
             scanf("%c", &saveReplay);
 
@@ -704,9 +718,7 @@ void runChessGame(byte boardSize) {
             
             printStatistics(moves, pieces, blackInCheckCounter);
 
-            getchar();
-
-            printf("Do you want to save the replay? [y/n]\n> ");
+            printf("\nDo you want to save the replay? [y/n]\n> ");
             char saveReplay;
             scanf("%c", &saveReplay);
 
