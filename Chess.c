@@ -714,7 +714,9 @@ void runChessGame(byte boardSize) {
 
             printStatistics(moves, pieces, blackInCheckCounter);
 
-            getchar();
+            //If the last move was white's we must remove an enter if it was black's then we don't
+            if(!playerTurn)
+                getchar();
 
             printf("\nDo you want to save the replay? [y/n]\n> ");
             char saveReplay;
