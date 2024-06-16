@@ -59,6 +59,8 @@ Coordinate* createCoordinate(byte x, byte y);
 
 Tile* getTileFromBoard(Vector* board, byte x, byte y);
 
+byte movesPerPiece(Vector* moves, Piece* piece);
+
 Vector* getLegalMoves(Vector* pieces, Piece* piece, Vector* board);
 
 byte isInCheck(Vector* pieces, Piece* piece, Vector* board);

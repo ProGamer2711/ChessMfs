@@ -155,6 +155,20 @@ static byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
     return 0;
 }
 
+byte movesPerPiece(Vector* moves, Piece* piece) {
+    byte moveCounter = 0;
+
+    for(byte i = 0; i < moves->length; i++) {
+        Move* currentMove = moves->get(moves, i);
+        
+        if(piece == currentMove->piece) {
+            moveCounter++;
+        }
+    }
+
+    return moveCounter;
+}
+
 static Vector *getPossibleMoves(Piece *piece, Vector *board) {
     Vector *possibleMoves = initVector();
 
@@ -646,6 +660,8 @@ void runChessGame(byte boardSize) {
 
     byte playerTurn = 1;
 
+    byte blackInCheckCounter = 0;
+
     while (1) {
         printBoard(board);
 
@@ -656,7 +672,10 @@ void runChessGame(byte boardSize) {
                 printf("Black wins\n");
             } else {
                 printf("White wins\n");
+                blackInCheckCounter++;
             }
+
+            printStatistics(moves, pieces, blackInCheckCounter);
 
             getchar();
 
@@ -676,11 +695,14 @@ void runChessGame(byte boardSize) {
                 printf("\nWhite is in check\n");
             } else {
                 printf("\nBlack is in check\n");
+                blackInCheckCounter++;
             }
         }
 
         if ((isInStalemate(pieces, blackKing, board) && !playerTurn) || (isInStalemate(pieces, whiteKing, board) && playerTurn)) {
             printf("Game over: Stalemate\n");
+            
+            printStatistics(moves, pieces, blackInCheckCounter);
 
             getchar();
 
