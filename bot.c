@@ -42,7 +42,7 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
     }
 
     if (whitePlayer) {
-        double maxx = -1e9;
+        double max = -1e9;
 
         for (byte i = 0; i < pieces->length; i++) {
             Piece* currentPiece = pieces->get(pieces, i);
@@ -58,18 +58,24 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
                 makeMove(moves, board, currentPiece, *move);
                 double result = minMax(moves, board, pieces, depth - 1, 0);
 
-                maxx = max(maxx, result);
+                max = max(max, result);
                 undoMove(moves, board);
             }
+
+            for(byte i=0;i<legalMoves->length;i++)
+            {
+                free(legalMoves->get(legalMoves,i));
+            }
+            freeVector(legalMoves);
         }
 
-        if (maxx == 1e9) {
+        if (max == 1e9) {
             return -depth * 1000;
         }
 
-        return maxx;
+        return max;
     } else {
-        double minn = 1e9;
+        double min = 1e9;
 
         for (byte i = 0; i < pieces->length; i++) {
             Piece* currentPiece = pieces->get(pieces, i);
@@ -85,16 +91,22 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
                 makeMove(moves, board, currentPiece, *move);
                 double result = minMax(moves, board, pieces, depth - 1, 1);
 
-                minn = min(minn, result);
+                min = min(min, result);
                 undoMove(moves, board);
             }
+
+            for(byte i=0;i<legalMoves->length;i++)
+            {
+                free(legalMoves->get(legalMoves,i));
+            }
+            freeVector(legalMoves);
         }
 
-        if (minn == 1e9) {
+        if (min == 1e9) {
             return depth * 1000;
         }
 
-        return minn;
+        return min;
     }
 }
 
@@ -117,7 +129,7 @@ void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
 
             makeMove(moves, board, currentPiece, *move);
 
-            double result = minMax(moves, board, pieces, MAX_DEPTH, 1);
+            double result = minMax(moves, board, pieces, (MAX_DEPTH*10)/board->length, 1);
 
             if (result < bestEval) {
                 ansPiece = currentPiece;
@@ -127,6 +139,12 @@ void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
 
             undoMove(moves, board);
         }
+
+        for(byte i=0;i<legalMoves->length;i++)
+        {
+            free(legalMoves->get(legalMoves,i));
+        }
+        freeVector(legalMoves);
     }
 
     makeMove(moves, board, ansPiece, ansMove);
