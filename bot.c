@@ -12,30 +12,30 @@ double staticEvaluation(Vector* board, Vector* pieces) {
     for (byte i = 0; i < pieces->length; i++) {
         Piece* piece = pieces->get(pieces, i);
 
-        double tempMat = 0;
+        double tempMaterial = 0;
 
         if (piece->isTaken) continue;
 
-        if (piece->type == KING) tempMat = 8000;
-        if (piece->type == ROOK_1 || piece->type == ROOK_2) tempMat = 5;
+        if (piece->type == KING) tempMaterial = 8000;
+        if (piece->type == ROOK_1 || piece->type == ROOK_2) tempMaterial = 5;
 
         // if the piece is black which wont happen here
-        if (!piece->isWhite) tempMat *= -1;
-        material += tempMat;
-    }
+        if (!piece->isWhite) tempMaterial *= -1;
 
+        material += tempMaterial;
+    }
 
     return material;
 }
 
-// white is maxxer
+// white is maxer
 double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whitePlayer) {
-    Piece* blackKing = getPieceByName(pieces,"kg");
-    Piece* whiteKing = getPieceByName(pieces,"KG");
+    Piece* blackKing = getPieceByName(pieces, "kg");
+    Piece* whiteKing = getPieceByName(pieces, "KG");
 
     // This should prevent king sacking
-    if(blackKing->isTaken)return 1e9;
-    if(whiteKing->isTaken)return -1e9;
+    if (blackKing->isTaken) return 1e9;
+    if (whiteKing->isTaken) return -1e9;
 
     if (depth == 0) {
         return staticEvaluation(board, pieces);
@@ -62,14 +62,14 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
                 undoMove(moves, board);
             }
 
-            for(byte i=0;i<legalMoves->length;i++)
-            {
-                free(legalMoves->get(legalMoves,i));
+            for (byte i = 0; i < legalMoves->length; i++) {
+                free(legalMoves->get(legalMoves, i));
             }
+
             freeVector(legalMoves);
         }
 
-        if (max == 1e9) {
+        if (max == -1e9) {
             return -depth * 1000;
         }
 
@@ -95,10 +95,10 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
                 undoMove(moves, board);
             }
 
-            for(byte i=0;i<legalMoves->length;i++)
-            {
-                free(legalMoves->get(legalMoves,i));
+            for (byte i = 0; i < legalMoves->length; i++) {
+                free(legalMoves->get(legalMoves, i));
             }
+
             freeVector(legalMoves);
         }
 
@@ -111,11 +111,10 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
 }
 
 void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
-    Piece* ansPiece;
-    Coordinate ansMove;
+    Piece* bestPiece;
+    Coordinate bestMove;
 
     double bestEval = 1e9 + 1;
-
 
     for (byte i = 0; i < pieces->length; i++) {
         Piece* currentPiece = pieces->get(pieces, i);
@@ -129,23 +128,23 @@ void blackTurn(Vector* moves, Vector* board, Vector* pieces) {
 
             makeMove(moves, board, currentPiece, *move);
 
-            double result = minMax(moves, board, pieces, (MAX_DEPTH*10)/board->length, 1);
+            double result = minMax(moves, board, pieces, (MAX_DEPTH * 10) / board->length, 1);
 
             if (result < bestEval) {
-                ansPiece = currentPiece;
-                ansMove = *move;
+                bestPiece = currentPiece;
+                bestMove = *move;
                 bestEval = result;
             }
 
             undoMove(moves, board);
         }
 
-        for(byte i=0;i<legalMoves->length;i++)
-        {
-            free(legalMoves->get(legalMoves,i));
+        for (byte i = 0; i < legalMoves->length; i++) {
+            free(legalMoves->get(legalMoves, i));
         }
+
         freeVector(legalMoves);
     }
 
-    makeMove(moves, board, ansPiece, ansMove);
+    makeMove(moves, board, bestPiece, bestMove);
 }
