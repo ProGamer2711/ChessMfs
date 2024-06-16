@@ -3,12 +3,14 @@
 #include "Constants.h"
 
 typedef void (*PrintMenuFunction)();
-typedef void (*ExecuteSelectionFunction)(byte);
+typedef int (*ExecuteSelectionFunction)(byte);
 
 void clearScreen();
 
 void waitForEnter();
 
 void printMainMenu();
+
+void printReplayMenu();
 
 void runMenu(PrintMenuFunction printMenu, ExecuteSelectionFunction executeSelection);

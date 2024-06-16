@@ -21,6 +21,14 @@ void printMainMenu() {
     printf("4. Exit\n");
 }
 
+void printReplayMenu() {
+    printf("1. To begining of game\n");
+    printf("2. Forward\n");
+    printf("3. Backwards\n");
+    printf("4. To end of game\n");
+    printf("5. Exit\n");
+}
+
 void runMenu(PrintMenuFunction printMenu, ExecuteSelectionFunction executeSelection) {
     unsigned short currentChoice = 0;
 
@@ -32,6 +40,8 @@ void runMenu(PrintMenuFunction printMenu, ExecuteSelectionFunction executeSelect
         printf("> ");
         scanf("%hu", &currentChoice);
 
-        executeSelection(currentChoice);
+        int result = executeSelection(currentChoice);
+
+        if(result == 0) return;
     }
 }

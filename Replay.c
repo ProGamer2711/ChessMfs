@@ -7,6 +7,7 @@
 #include "Constants.h"
 #include "Menu.h"
 #include "Vector.h"
+#include "Chess.h"
 
 #define MOVE_SIZE 5
 
@@ -74,8 +75,28 @@ void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
     fclose(file);
 }
 
+int executeReplaySelection(byte selection) {
+    switch (selection) {
+        case 1:
+            return 1;
+        case 2:
+            return 1;
+        case 3:
+            return 1;
+        case 4:
+            return 1;
+        case 5:
+            return 0;
+        default:
+            printf("Invalid selection\n");
+            return 1;
+    }
+}
+
 void replayGame() {
     clearScreen();
+
+    getchar();
 
     printf("Which file do you want to replay from?\n> ");
 
@@ -85,5 +106,5 @@ void replayGame() {
     // remove the \n from the end of the string
     fileName[strlen(fileName) - 1] = '\0';
 
-    // ! Nathaniel go brr...
+    runMenu(printReplayMenu, executeReplaySelection);
 }
