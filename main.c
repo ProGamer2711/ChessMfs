@@ -16,6 +16,8 @@
 void changeBoardSize(byte* currentBoardSize) {
     clearScreen();
 
+    printf("Current board size: %hu\n", *currentBoardSize);
+
     unsigned short newBoardSize;
 
     printf("Enter new board size\n> ");

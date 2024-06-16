@@ -523,6 +523,8 @@ static byte makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     // mark all tiles with possible moves
     setPossibleMoves(board, legalMoves);
 
+    clearScreen();
+
     printBoard(board);
 
     // ask the user where to move
@@ -636,6 +638,12 @@ void runChessGame(byte boardSize) {
         if (isInCheckmate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
             printf("Game over: Checkmate\n");
 
+            if (playerTurn) {
+                printf("Black wins\n");
+            } else {
+                printf("White wins\n");
+            }
+
             getchar();
 
             printf("Do you want to save the replay? [y/n]\n> ");
@@ -650,7 +658,11 @@ void runChessGame(byte boardSize) {
         }
 
         if (isInCheck(pieces, blackKing, board) || isInCheck(pieces, whiteKing, board)) {
-            printf("Check\n");
+            if (playerTurn) {
+                printf("\nWhite is in check\n");
+            } else {
+                printf("\nBlack is in check\n");
+            }
         }
 
         if ((isInStalemate(pieces, blackKing, board) && !playerTurn) || (isInStalemate(pieces, whiteKing, board) && playerTurn)) {
@@ -677,6 +689,8 @@ void runChessGame(byte boardSize) {
             removePossibleMoves(board);
         } else {
             blackTurn(moves, board, pieces);
+
+            waitForEnter();
 
             playerTurn = 1;
         }
