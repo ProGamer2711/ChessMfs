@@ -108,6 +108,14 @@ static void goToStartOfGame(FILE* file, Vector* pieceStartingPositions, Vector**
     initializeReplay(boardSize, pieceStartingPositions, board, pieces, moves);
 }
 
+static void goOneMoveBackward(FILE* file, Vector* board, Vector* pieces, Vector* moves) {
+    long positionInFile = ftell(file);
+        if(positionInFile > calculateSeedLength(pieces->length)) {
+            fseek(file, -MOVE_SIZE, SEEK_CUR);
+            undoMove(moves, board);
+        }
+}
+
 static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
     if (!hasNextMove(file)) {
         printf("No more moves to read\n");
@@ -129,17 +137,28 @@ static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
     makeMove(moves, board, tile->piece, endCoordinate);
 }
 
+static void goToEndOfGame(FILE* file, Vector* board, Vector* moves) {
+    while(hasNextMove(file)) {
+        goOneMoveForward(file, board, moves);
+    }
+}
+
 static byte executeReplaySelection(byte selection, FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
     switch (selection) {
         case 1:
             goToStartOfGame(file, pieceStartingPositions, board, pieces, moves);
             break;
         case 2:
+            goOneMoveBackward(file, *board, *pieces, *moves);
+
             break;
         case 3:
             goOneMoveForward(file, *board, *moves);
+
             break;
         case 4:
+            goToEndOfGame(file, *board, *moves);
+
             break;
         case 5:
             return 0;
