@@ -14,7 +14,7 @@ void waitForEnter() {
     while (getchar() != '\n');
 }
 
-void printMainMenu() {
+static void printMainMenu() {
     printf("1. New game\n");
     printf("2. Change board size\n");
     printf("3. Replay a game\n");
@@ -38,7 +38,7 @@ void runMainMenu(ExecuteMainSelectionFunction executeSelection, byte* currentBoa
     }
 }
 
-void printReplayMenu() {
+static void printReplayMenu() {
     printf("1. To begining of game\n");
     printf("2. Forward\n");
     printf("3. Backwards\n");

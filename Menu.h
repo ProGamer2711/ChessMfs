@@ -10,10 +10,6 @@ void clearScreen();
 
 void waitForEnter();
 
-void printMainMenu();
-
 void runMainMenu(ExecuteMainSelectionFunction executeSelection, byte* currentBoardSize);
-
-void printReplayMenu();
 
 void runReplayMenu(ExecuteReplaySelectionFunction executeSelection, Vector* pieceStartingPositions, Vector* board, Vector* pieces, Vector* moves);

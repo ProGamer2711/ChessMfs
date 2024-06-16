@@ -8,9 +8,6 @@
 // Could be any size but the best experience is up to 50
 #define MAX_BOARD_SIZE 50
 
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-
 typedef struct Coordinate {
     byte x;
     byte y;
@@ -58,7 +55,15 @@ byte isWhite[PIECE_COUNT] = {1, 1, 0, 1};
 
 Coordinate* createCoordinate(byte x, byte y);
 
+Tile* getTileFromBoard(Vector* board, byte x, byte y);
+
 Vector* getLegalMoves(Vector* pieces, Piece* piece, Vector* board);
+
+byte isInCheck(Vector* pieces, Piece* piece, Vector* board);
+
+byte isInStalemate(Vector* pieces, Piece* piece, Vector* board);
+
+byte isInCheckmate(Vector* pieces, Piece* piece, Vector* board);
 
 Piece* getPieceByName(Vector* pieces, char* pieceName);
 

@@ -6,9 +6,7 @@
 #include "Constants.h"
 #include "Vector.h"
 
-#define MAX_DEPTH 32
-
-double staticEvaluation(Vector* board, Vector* pieces) {
+static double staticEvaluation(Vector* board, Vector* pieces) {
     double material = 0;
 
     for (byte i = 0; i < pieces->length; i++) {
@@ -31,7 +29,7 @@ double staticEvaluation(Vector* board, Vector* pieces) {
 }
 
 // white is max and black is min
-double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whitePlayer) {
+static double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whitePlayer) {
     Piece* blackKing = getPieceByName(pieces, "kg");
     Piece* whiteKing = getPieceByName(pieces, "KG");
 
@@ -60,7 +58,7 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
                 makeMove(moves, board, currentPiece, *move);
                 double result = minMax(moves, board, pieces, depth - 1, 0);
 
-                max = max(max, result);
+                max = MAX(max, result);
                 undoMove(moves, board);
             }
 
@@ -93,7 +91,7 @@ double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whi
                 makeMove(moves, board, currentPiece, *move);
                 double result = minMax(moves, board, pieces, depth - 1, 1);
 
-                min = min(min, result);
+                min = MIN(min, result);
                 undoMove(moves, board);
             }
 

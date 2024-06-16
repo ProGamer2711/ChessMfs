@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-void printTile(Tile *tile) {
+static void printTile(Tile *tile) {
     if (tile->type == POSSIBLE_MOVE) {
         printf("(");
     } else {
@@ -55,7 +55,7 @@ void printTile(Tile *tile) {
 // If you use the simplified table
 // you will not see your possible moves
 // to save space in the console
-void printTileSimplified(Tile *tile) {
+static void printTileSimplified(Tile *tile) {
     if (tile->piece == NULL) {
         printf("--");
     } else if (tile->piece->isWhite) {
@@ -86,14 +86,14 @@ void printTileSimplified(Tile *tile) {
     }
 }
 
-void printHorizontalBorder(byte boardSize) {
+static void printHorizontalBorder(byte boardSize) {
     for (byte j = 0; j < boardSize; j++) {
         printf("+----");
     }
     printf("+\n");
 }
 
-void printHorizontalNumbers(byte boardSize) {
+static void printHorizontalNumbers(byte boardSize) {
     // add one extra to start from 00 with an extra cell
     // so we can have row numbers too
     for (byte j = 0; j < boardSize + 1; j++) {
@@ -103,7 +103,7 @@ void printHorizontalNumbers(byte boardSize) {
     printf("|\n");
 }
 
-void printBoardAsTable(Vector *board) {
+static void printBoardAsTable(Vector *board) {
     printHorizontalBorder(board->length + 1);
 
     printHorizontalNumbers(board->length);
@@ -132,7 +132,7 @@ void printBoardAsTable(Vector *board) {
     printHorizontalBorder(board->length + 1);
 }
 
-void printBoardAsSimplifiedTable(Vector *board) {
+static void printBoardAsSimplifiedTable(Vector *board) {
     for (byte i = 0; i < board->length; i++) {
         // print the top numbers
         if (i == 0) {

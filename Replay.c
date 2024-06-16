@@ -18,7 +18,7 @@ byte calculateSeedLength(byte pieceCount) {
     return 2 + pieceCount * 2;
 }
 
-void writeMoveToFile(FILE *file, Move *move) {
+static void writeMoveToFile(FILE *file, Move *move) {
     PieceType pieceTakenType = move->pieceTaken == NULL ? 0 : move->pieceTaken->type;
     byte pieceTaken = pieceTakenType;
 
@@ -75,7 +75,7 @@ void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
     fclose(file);
 }
 
-byte executeReplaySelection(byte selection) {
+static byte executeReplaySelection(byte selection) {
     switch (selection) {
         case 1:
             return 1;

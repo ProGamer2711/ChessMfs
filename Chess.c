@@ -26,7 +26,7 @@ Coordinate *createCoordinate(byte x, byte y) {
     return coordinate;
 }
 
-Tile *createTile(TileType type, byte x, byte y) {
+static Tile *createTile(TileType type, byte x, byte y) {
     Tile *tile = (Tile *)malloc(sizeof(Tile));
 
     if (tile == NULL) {
@@ -42,7 +42,7 @@ Tile *createTile(TileType type, byte x, byte y) {
     return tile;
 }
 
-Vector *createBoard(byte boardSize) {
+static Vector *createBoard(byte boardSize) {
     if (boardSize < MIN_BOARD_SIZE || boardSize > MAX_BOARD_SIZE) {
         printf("Invalid board size\n");
         exit(1);
@@ -70,7 +70,7 @@ Tile *getTileFromBoard(Vector *board, byte x, byte y) {
     return tile;
 }
 
-Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite) {
+static Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite) {
     Piece *piece = (Piece *)malloc(sizeof(Piece));
 
     if (piece == NULL) {
@@ -89,7 +89,7 @@ Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte isWhite) 
     return piece;
 }
 
-Move *createMove(Piece *piece, Coordinate start, Coordinate end, Piece *pieceTaken) {
+static Move *createMove(Piece *piece, Coordinate start, Coordinate end, Piece *pieceTaken) {
     Move *move = (Move *)malloc(sizeof(Move));
 
     if (move == NULL) {
@@ -125,7 +125,7 @@ Piece *getPieceByName(Vector *pieces, char *pieceName) {
     return NULL;
 }
 
-byte isOutOfBounds(Coordinate coordinate, byte boardSize) {
+static byte isOutOfBounds(Coordinate coordinate, byte boardSize) {
     if (coordinate.x < 0 || coordinate.x >= boardSize || coordinate.y < 0 || coordinate.y >= boardSize) {
         return 1;
     }
@@ -133,7 +133,7 @@ byte isOutOfBounds(Coordinate coordinate, byte boardSize) {
     return 0;
 }
 
-byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
+static byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
     if (coordinate1.x == coordinate2.x && coordinate1.y == coordinate2.y) {
         return 1;
     }
@@ -141,7 +141,7 @@ byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
     return 0;
 }
 
-Vector *getPossibleMoves(Piece *piece, Vector *board) {
+static Vector *getPossibleMoves(Piece *piece, Vector *board) {
     Vector *possibleMoves = initVector();
 
     if (piece->type == ROOK_1 || piece->type == ROOK_2) {
@@ -218,8 +218,8 @@ Vector *getPossibleMoves(Piece *piece, Vector *board) {
             break;
         }
     } else if (piece->type == KING) {
-        for (byte i = max(piece->tile->position.x - 1, 0); i <= piece->tile->position.x + 1; i++) {
-            for (byte j = max(piece->tile->position.y - 1, 0); j <= piece->tile->position.y + 1; j++) {
+        for (byte i = MAX(piece->tile->position.x - 1, 0); i <= piece->tile->position.x + 1; i++) {
+            for (byte j = MAX(piece->tile->position.y - 1, 0); j <= piece->tile->position.y + 1; j++) {
                 Coordinate *newCoordinate = createCoordinate(i, j);
 
                 if (isOutOfBounds(*newCoordinate, board->length) || coordinatesMatch(*newCoordinate, piece->tile->position)) {
@@ -397,7 +397,7 @@ byte isInCheckmate(Vector *pieces, Piece *piece, Vector *board) {
 
 // sets the type of the tiles to POSSIBLE_MOVE
 // for all legal moves of the piece
-void setPossibleMoves(Vector *board, Vector *legalMoves) {
+static void setPossibleMoves(Vector *board, Vector *legalMoves) {
     for (byte i = 0; i < legalMoves->length; i++) {
         Coordinate *currentMove = legalMoves->get(legalMoves, i);
 
@@ -406,7 +406,7 @@ void setPossibleMoves(Vector *board, Vector *legalMoves) {
     }
 }
 
-void removePossibleMoves(Vector *board) {
+static void removePossibleMoves(Vector *board) {
     for (byte i = 0; i < board->length; i++) {
         Vector *row = board->get(board, i);
 
@@ -422,7 +422,7 @@ void removePossibleMoves(Vector *board) {
 
 // This function places the pieces randomly on the board
 // and returns a seed for the replay file
-byte *placePiecesRandomly(Vector *board, Vector *pieces) {
+static byte *placePiecesRandomly(Vector *board, Vector *pieces) {
     byte currentSeedLength = 0;
     byte *seed = calloc(sizeof(byte), calculateSeedLength(pieces->length));
 
@@ -492,7 +492,7 @@ void makeMove(Vector *moves, Vector *board, Piece *piece, Coordinate end) {
 }
 
 // returns if the move was successful
-byte makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
+static byte makeLegalMove(Vector *moves, Vector *pieces, Vector *board) {
     // ask the user which piece to move
     // here we enter the piece as a string
     // ie. KG for white king, R1 for white rook 1
