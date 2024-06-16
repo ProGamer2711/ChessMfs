@@ -40,8 +40,8 @@ void runMenu(PrintMenuFunction printMenu, ExecuteSelectionFunction executeSelect
         printf("> ");
         scanf("%hu", &currentChoice);
 
-        int result = executeSelection(currentChoice);
+        byte shouldContinue = executeSelection(currentChoice);
 
-        if(result == 0) return;
+        if (shouldContinue == 0) return;
     }
 }

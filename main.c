@@ -31,22 +31,27 @@ void changeBoardSize() {
     }
 }
 
-int executeMainSelection(byte selection) {
+byte executeMainSelection(byte selection) {
     switch (selection) {
         case 1:
             runChessGame(currentBoardSize);
+
             return 1;
         case 2:
             changeBoardSize();
+
             return 1;
         case 3:
             replayGame();
+
             return 1;
         case 4:
             exit(0);
+
             return 1;
         default:
             printf("Invalid selection\n");
+
             return 0;
     }
 }

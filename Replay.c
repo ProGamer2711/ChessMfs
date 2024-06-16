@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Chess.h"
 #include "Constants.h"
 #include "Menu.h"
 #include "Vector.h"
-#include "Chess.h"
 
 #define MOVE_SIZE 5
 
@@ -75,7 +75,7 @@ void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
     fclose(file);
 }
 
-int executeReplaySelection(byte selection) {
+byte executeReplaySelection(byte selection) {
     switch (selection) {
         case 1:
             return 1;
@@ -89,6 +89,7 @@ int executeReplaySelection(byte selection) {
             return 0;
         default:
             printf("Invalid selection\n");
+
             return 1;
     }
 }

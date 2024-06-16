@@ -3,7 +3,7 @@
 #include "Constants.h"
 
 typedef void (*PrintMenuFunction)();
-typedef int (*ExecuteSelectionFunction)(byte);
+typedef byte (*ExecuteSelectionFunction)(byte);
 
 void clearScreen();
 
