@@ -1,9 +1,7 @@
-#include "Printing.h"
-
-#include "Chess.h"
-
+#include <string.h>
 #include <stdio.h>
 
+#include "Printing.h"
 #include "Chess.h"
 #include "Vector.h"
 

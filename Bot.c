@@ -6,7 +6,7 @@
 #include "Constants.h"
 #include "Vector.h"
 
-static double staticEvaluation(Vector* board, Vector* pieces) {
+double staticEvaluation(Vector* board, Vector* pieces) {
     double material = 0;
 
     for (byte i = 0; i < pieces->length; i++) {
@@ -29,7 +29,7 @@ static double staticEvaluation(Vector* board, Vector* pieces) {
 }
 
 // white is max and black is min
-static double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whitePlayer) {
+double minMax(Vector* moves, Vector* board, Vector* pieces, byte depth, byte whitePlayer) {
     Piece* blackKing = getPieceByName(pieces, "kg");
     Piece* whiteKing = getPieceByName(pieces, "KG");
 

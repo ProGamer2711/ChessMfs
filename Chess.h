@@ -50,8 +50,8 @@ typedef struct Move {
 
 // Our current order of placement:
 // white rook 1, white rook 2, black king, white king
-PieceType pieceTypes[PIECE_COUNT] = {ROOK_1, ROOK_2, KING, KING};
-byte isWhite[PIECE_COUNT] = {1, 1, 0, 1};
+static PieceType pieceTypes[PIECE_COUNT] = {ROOK_1, ROOK_2, KING, KING};
+static byte isWhite[PIECE_COUNT] = {1, 1, 0, 1};
 
 void freeBoard(Vector* board);
 

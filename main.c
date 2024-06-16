@@ -7,6 +7,13 @@
 #include "Menu.h"
 #include "Replay.h"
 
+// #include "Bot.c"
+// #include "Menu.c"
+// #include "Replay.c"
+// #include "Vector.c"
+// #include "Chess.c"
+// #include "Printing.c"
+
 void changeBoardSize(byte* currentBoardSize) {
     clearScreen();
 

@@ -8,26 +8,26 @@ endif
 
 all: main$(EXECUTABLE)
 
-main$(EXECUTABLE): main.c Bot.o Chess.o Constants.h Menu.o Printing.o Replay.o Vector.o
-	gcc main.c Bot.o Chess.o Menu.o Printing.o Replay.o Vector.o -o main$(EXECUTABLE)
+main$(EXECUTABLE): main.c Bot.o Chess.o Menu.o Printing.o Replay.o Vector.o Replay.h Chess.h Constants.h Menu.h
+	gcc main.c -o main$(EXECUTABLE) Bot.o Chess.o Menu.o Printing.o Replay.o Vector.o
 
-Bot.o: Bot.c Bot.h
-	gcc -c Bot.c -o Bot.o
+Bot.o: Bot.c Bot.h Chess.h Constants.h Vector.h
+	gcc Bot.c -c -o Bot.o
 
-Chess.o: Chess.c Chess.h
-	gcc -c Chess.c -o Chess.o
+Chess.o: Chess.c Chess.h Bot.h Constants.h Menu.h Printing.h Replay.h Vector.h
+	gcc Chess.c -c -o Chess.o
 
-Menu.o: Menu.c Menu.h
-	gcc -c Menu.c -o Menu.o
+Menu.o: Menu.c Menu.h Chess.h Constants.h Printing.h Replay.h Vector.h
+	gcc Menu.c -c -o Menu.o
 
-Printing.o: Printing.c Printing.h
-	gcc -c Printing.c -o Printing.o
+Printing.o: Printing.c Printing.h Chess.h Vector.h
+	gcc Printing.c -c -o Printing.o
 
-Replay.o: Replay.c Replay.h
-	gcc -c Replay.c -o Replay.o
+Replay.o: Replay.c Replay.h Chess.h Vector.h Constants.h Menu.h
+	gcc Replay.c -c -o Replay.o
 
 Vector.o: Vector.c Vector.h
-	gcc -c Vector.c -o Vector.o
+	gcc Vector.c -c -o Vector.o
 
 clean:
 	$(CLEAN) *.exe *.out *.o
