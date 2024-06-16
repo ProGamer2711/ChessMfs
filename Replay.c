@@ -98,6 +98,16 @@ void freeReplayArguments(Vector* board, Vector* pieces, Vector* moves) {
     freeReplayArgument(moves);
 }
 
+static void goToStartOfGame(FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
+    byte offset = calculateSeedLength((*pieces)->length), boardSize = (*board)->length;
+
+    fseek(file, offset, SEEK_SET);
+
+    freeReplayArguments(*board, *pieces, *moves);
+
+    initializeReplay(boardSize, pieceStartingPositions, board, pieces, moves);
+}
+
 static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
     if (!hasNextMove(file)) {
         printf("No more moves to read\n");
@@ -121,17 +131,9 @@ static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
 
 static byte executeReplaySelection(byte selection, FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
     switch (selection) {
-        case 1: {
-            byte offset = calculateSeedLength((*pieces)->length), boardSize = (*board)->length;
-
-            fseek(file, offset, SEEK_SET);
-
-            freeReplayArguments(*board, *pieces, *moves);
-
-            initializeReplay(boardSize, pieceStartingPositions, board, pieces, moves);
-
+        case 1:
+            goToStartOfGame(file, pieceStartingPositions, board, pieces, moves);
             break;
-        }
         case 2:
             break;
         case 3:
