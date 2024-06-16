@@ -1,5 +1,7 @@
 #include "Printing.h"
 
+#include "Chess.h"
+
 #include <stdio.h>
 
 #include "Chess.h"
@@ -196,4 +198,51 @@ void printMove(Move *move) {
     }
 
     printf("\n");
+}
+
+void printStatistics(Vector* moves, Vector* pieces, byte blackInCheckCounter) {
+    printf("The total number of moves was %d\n", moves->length);
+
+    for(byte i = 0; i < pieces->length; i++) {
+        Piece* currentPiece = pieces->get(pieces, i);
+        byte moveCounter = movesPerPiece(moves, currentPiece);
+
+        char color[6];
+        strcpy(color, currentPiece->isWhite ? "white" : "black");
+
+        printf("The ");
+
+        switch(currentPiece->type) {
+            case KING: 
+                printf("%s king ", color);
+                break;
+            case ROOK_1:
+                printf("first %s rook ", color);
+                break;
+            case ROOK_2:
+                printf("second %s rook ", color);
+                break;
+            default:
+                printf("Invalid piece\n");
+                break;
+        }
+
+        printf("was moved %d time", moveCounter);
+        
+        if(moveCounter != 1) {
+            printf("s");
+        }
+
+        printf("\n");
+    }
+
+    printf("The black king has been checked %d time", blackInCheckCounter);
+
+    if(blackInCheckCounter != 1) {
+        printf("s");
+    }
+
+    printf("\n");
+
+    printf("The number of pieces captured by the black king was %d\n", capturedPieces(pieces));
 }

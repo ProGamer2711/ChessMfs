@@ -96,9 +96,6 @@ static Piece *createPiece(Vector *board, byte x, byte y, PieceType type, byte is
     piece->isWhite = isWhite;
     piece->isTaken = 0;
 
-    // ! used for debugging
-    // piece->tile->piece = piece;
-
     return piece;
 }
 
@@ -152,6 +149,34 @@ static byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
     }
 
     return 0;
+}
+
+byte movesPerPiece(Vector* moves, Piece* piece) {
+    byte moveCounter = 0;
+
+    for(byte i = 0; i < moves->length; i++) {
+        Move* currentMove = moves->get(moves, i);
+        
+        if(piece == currentMove->piece) {
+            moveCounter++;
+        }
+    }
+
+    return moveCounter;
+}
+
+byte capturedPieces(Vector* pieces) {
+    byte capturedPiecesCounter = 0;
+
+    for(byte i = 0; i < pieces->length; i++) {
+        Piece* currentPiece = pieces->get(pieces, i);
+
+        if(currentPiece->isTaken == 1) {
+            capturedPiecesCounter++;
+        }
+    }
+
+    return capturedPiecesCounter;
 }
 
 static Vector *getPossibleMoves(Piece *piece, Vector *board) {
@@ -645,6 +670,8 @@ void runChessGame(byte boardSize) {
 
     byte playerTurn = 1;
 
+    byte blackInCheckCounter = 0;
+
     while (1) {
         printBoard(board);
 
@@ -655,11 +682,14 @@ void runChessGame(byte boardSize) {
                 printf("Black wins\n");
             } else {
                 printf("White wins\n");
+                blackInCheckCounter++;
             }
+
+            printStatistics(moves, pieces, blackInCheckCounter);
 
             getchar();
 
-            printf("Do you want to save the replay? [y/n]\n> ");
+            printf("\nDo you want to save the replay? [y/n]\n> ");
             char saveReplay;
             scanf("%c", &saveReplay);
 
@@ -675,15 +705,16 @@ void runChessGame(byte boardSize) {
                 printf("\nWhite is in check\n");
             } else {
                 printf("\nBlack is in check\n");
+                blackInCheckCounter++;
             }
         }
 
         if ((isInStalemate(pieces, blackKing, board) && !playerTurn) || (isInStalemate(pieces, whiteKing, board) && playerTurn)) {
             printf("Game over: Stalemate\n");
+            
+            printStatistics(moves, pieces, blackInCheckCounter);
 
-            getchar();
-
-            printf("Do you want to save the replay? [y/n]\n> ");
+            printf("\nDo you want to save the replay? [y/n]\n> ");
             char saveReplay;
             scanf("%c", &saveReplay);
 

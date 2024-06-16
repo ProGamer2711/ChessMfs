@@ -18,9 +18,12 @@ byte calculateSeedLength(byte pieceCount) {
 
 byte hasNextMove(FILE* file) {
     long currentPos = ftell(file);
+
     byte buffer[MOVE_SIZE];
     size_t bytesRead = fread(buffer, sizeof(byte), MOVE_SIZE, file);
-    fseek(file, currentPos, SEEK_SET);  // Reset file position to original
+
+    // Reset file position to original
+    fseek(file, currentPos, SEEK_SET);
 
     return bytesRead == MOVE_SIZE;
 }
