@@ -1,15 +1,15 @@
 ifeq ($(OS),Windows_NT)
-	EXECUTABLE = .exe
-	CLEAN = del
+	FILE_EXTENSION = .exe
+	CLEAN_COMMAND = del
 else
-	EXECUTABLE = .out
-	CLEAN = rm
+	FILE_EXTENSION = .out
+	CLEAN_COMMAND = rm
 endif
 
-all: main$(EXECUTABLE)
+all: main$(FILE_EXTENSION)
 
-main$(EXECUTABLE): main.c Bot.o Chess.o Menu.o Printing.o Replay.o Vector.o Replay.h Chess.h Constants.h Menu.h
-	gcc main.c -o main$(EXECUTABLE) Bot.o Chess.o Menu.o Printing.o Replay.o Vector.o
+main$(FILE_EXTENSION): main.c Bot.o Chess.o Menu.o Printing.o Replay.o Vector.o Replay.h Chess.h Constants.h Menu.h
+	gcc main.c -o main$(FILE_EXTENSION) Bot.o Chess.o Menu.o Printing.o Replay.o Vector.o
 
 Bot.o: Bot.c Bot.h Chess.h Constants.h Vector.h
 	gcc Bot.c -c -o Bot.o
@@ -30,4 +30,4 @@ Vector.o: Vector.c Vector.h
 	gcc Vector.c -c -o Vector.o
 
 clean:
-	$(CLEAN) *.exe *.out *.o
+	$(CLEAN_COMMAND) *.exe *.out *.o

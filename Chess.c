@@ -151,13 +151,13 @@ static byte coordinatesMatch(Coordinate coordinate1, Coordinate coordinate2) {
     return 0;
 }
 
-byte movesPerPiece(Vector* moves, Piece* piece) {
+byte movesPerPiece(Vector *moves, Piece *piece) {
     byte moveCounter = 0;
 
-    for(byte i = 0; i < moves->length; i++) {
-        Move* currentMove = moves->get(moves, i);
-        
-        if(piece == currentMove->piece) {
+    for (byte i = 0; i < moves->length; i++) {
+        Move *currentMove = moves->get(moves, i);
+
+        if (piece == currentMove->piece) {
             moveCounter++;
         }
     }
@@ -165,13 +165,13 @@ byte movesPerPiece(Vector* moves, Piece* piece) {
     return moveCounter;
 }
 
-byte capturedPieces(Vector* pieces) {
+byte capturedPieces(Vector *pieces) {
     byte capturedPiecesCounter = 0;
 
-    for(byte i = 0; i < pieces->length; i++) {
-        Piece* currentPiece = pieces->get(pieces, i);
+    for (byte i = 0; i < pieces->length; i++) {
+        Piece *currentPiece = pieces->get(pieces, i);
 
-        if(currentPiece->isTaken == 1) {
+        if (currentPiece->isTaken == 1) {
             capturedPiecesCounter++;
         }
     }
@@ -711,7 +711,7 @@ void runChessGame(byte boardSize) {
 
         if ((isInStalemate(pieces, blackKing, board) && !playerTurn) || (isInStalemate(pieces, whiteKing, board) && playerTurn)) {
             printf("Game over: Stalemate\n");
-            
+
             printStatistics(moves, pieces, blackInCheckCounter);
 
             printf("\nDo you want to save the replay? [y/n]\n> ");
