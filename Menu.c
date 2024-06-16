@@ -40,24 +40,41 @@ void runMainMenu(ExecuteMainSelectionFunction executeSelection, byte* currentBoa
 
 static void printReplayMenu() {
     printf("1. To begining of game\n");
-    printf("2. Forward\n");
-    printf("3. Backwards\n");
+    printf("2. Backwards\n");
+    printf("3. Forwards\n");
     printf("4. To end of game\n");
     printf("5. Exit\n");
 }
 
-void runReplayMenu(ExecuteReplaySelectionFunction executeSelection, Vector* pieceStartingPositions, Vector* board, Vector* pieces, Vector* moves) {
+void runReplayMenu(ExecuteReplaySelectionFunction executeSelection, FILE* file, Vector* pieceStartingPositions, Vector* board, Vector* pieces, Vector* moves) {
     unsigned short currentChoice = 0;
 
     while (1) {
         clearScreen();
+
+        printBoard(board);
+
+        Piece *whiteKing = getPieceByName(pieces, "KG");
+        Piece *blackKing = getPieceByName(pieces, "kg");
+
+        if (whiteKing == NULL || blackKing == NULL) {
+            printf("Failed to find kings\n");
+
+            exit(1);
+        }
+
+        if (isInCheckmate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
+            printf("Game Over: Checkmate\n");
+        } else if (isInStalemate(pieces, blackKing, board) || isInStalemate(pieces, whiteKing, board)) {
+            printf("Game Over: Stalemate\n");
+        }
 
         printReplayMenu();
 
         printf("> ");
         scanf("%hu", &currentChoice);
 
-        byte shouldContinue = executeSelection(currentChoice, pieceStartingPositions, board, pieces, moves);
+        byte shouldContinue = executeSelection(currentChoice, file, pieceStartingPositions, board, pieces, moves);
 
         if (shouldContinue == 0) return;
     }
