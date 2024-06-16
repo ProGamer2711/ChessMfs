@@ -18,7 +18,7 @@ byte calculateSeedLength(byte pieceCount) {
     return 2 + pieceCount * 2;
 }
 
-static void writeMoveToFile(FILE* file, Move* move) {
+static void writeMoveToFile(FILE *file, Move *move) {
     PieceType pieceTakenType = move->pieceTaken == NULL ? 0 : move->pieceTaken->type;
     byte pieceTaken = pieceTakenType;
 
@@ -42,7 +42,7 @@ static void writeMoveToFile(FILE* file, Move* move) {
     }
 }
 
-void writeReplayToFile(byte* seed, size_t seedLength, Vector* moves) {
+void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
     getchar();
 
     printf("Where do you want to store your replay?\n> ");
@@ -53,7 +53,7 @@ void writeReplayToFile(byte* seed, size_t seedLength, Vector* moves) {
     // remove the \n from the end of the string
     fileName[strlen(fileName) - 1] = '\0';
 
-    FILE* file = fopen(fileName, "wb");
+    FILE *file = fopen(fileName, "wb");
 
     if (file == NULL) {
         printf("Failed to open file");
@@ -76,7 +76,7 @@ void writeReplayToFile(byte* seed, size_t seedLength, Vector* moves) {
 }
 
 void freeReplayArgument(Vector* replayArgument) {
-    for (byte i = 0; i < replayArgument->length; i++) {
+    for(byte i = 0; i < replayArgument->length; i++) {
         free(replayArgument->get(replayArgument, i));
     }
 
@@ -89,50 +89,31 @@ void freeReplayArguments(Vector* board, Vector* pieces, Vector* moves) {
     freeReplayArgument(moves);
 }
 
-static void goToStartOfGame(FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
-    Vector* dereferencedBoard = *board;
-    Vector* dereferencedPieces = *pieces;
-    Vector* dereferencedMoves = *moves;
-
-    byte boardSize = dereferencedBoard->length;
-
-    fseek(file, calculateSeedLength(dereferencedPieces->length), SEEK_SET);
-
-    freeReplayArguments(dereferencedBoard, dereferencedPieces, dereferencedMoves);
-
-    initializeReplay(boardSize, pieceStartingPositions, board, pieces, moves);
-}
-
-static void goOneMoveForward(FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
-    Vector* dereferencedBoard = *board;
-    Vector* dereferencedMoves = *moves;
-
-    byte position[2];
-    fread(position, sizeof(byte), 2, file);
-    Tile* tile = getTileFromBoard(dereferencedBoard, position[0], position[1]);
-
-    fread(position, sizeof(byte), 2, file);
-    Coordinate endCoordinate = {position[0], position[1]};
-
-    fseek(file, 1, SEEK_CUR);
-
-    makeMove(dereferencedMoves, dereferencedBoard, tile->piece, endCoordinate);
-}
-
 static byte executeReplaySelection(byte selection, FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
-    Vector* dereferencedBoard = *board;
-    Vector* dereferencedPieces = *pieces;
-    Vector* dereferencedMoves = *moves;
-
     switch (selection) {
         case 1:
-            goToStartOfGame(file, pieceStartingPositions, board, pieces, moves);
+            byte offset = calculateSeedLength((*pieces)->length), boardSize = (*board)->length;
+
+            fseek(file, offset, SEEK_SET);
+
+            freeReplayArguments(*board, *pieces, *moves);
+
+            initializeReplay(boardSize, pieceStartingPositions, board, pieces, moves);
 
             return 1;
         case 2:
             return 1;
         case 3:
-            goOneMoveForward(file, pieceStartingPositions, board, pieces, moves);
+            byte position[2];
+            fread(position, sizeof(byte), 2, file);
+            Tile* tile = getTileFromBoard(*board, position[0], position[1]);
+
+            fread(position, sizeof(byte), 2, file);
+            Coordinate endCoordinate = { position[0], position[1] };
+
+            fseek(file, 1, SEEK_CUR);
+
+            makeMove(*moves, *board, tile->piece, endCoordinate);
 
             return 1;
         case 4:
@@ -161,8 +142,7 @@ void replayGame() {
     byte boardSize, numberOfPieces;
     Vector *pieceStartingPositions, *board = NULL, *pieces = NULL, *moves = NULL;
 
-    FILE* file = fopen(fileName, "rb");
-
+    FILE *file = fopen(fileName, "rb");
     if (file == NULL) {
         printf("Failed to open file");
 
@@ -178,13 +158,17 @@ void replayGame() {
     for (byte i = 0; i < numberOfPieces; i++) {
         byte position[2];
         fread(position, sizeof(byte), 2, file);
-
-        Coordinate* coordinate = createCoordinate(position[0], position[1]);
-
+        Coordinate *coordinate = createCoordinate(position[0], position[1]);
         pieceStartingPositions->push(pieceStartingPositions, coordinate);
     }
 
     initializeReplay(boardSize, pieceStartingPositions, &board, &pieces, &moves);
+
+    // printf("%d, %d  ", boardSize, numberOfPieces);
+    // for(int i=0; i < pieceStartingPositions->length;i++) {
+    //     Coordinate* coord = pieceStartingPositions->get(pieceStartingPositions, i);
+    //     printf("x: %d, y:%d     ", coord->x, coord->y);
+    // }
 
     runReplayMenu(executeReplaySelection, file, pieceStartingPositions, &board, &pieces, &moves);
 
