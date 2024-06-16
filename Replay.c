@@ -89,7 +89,6 @@ byte executeReplaySelection(byte selection) {
             return 0;
         default:
             printf("Invalid selection\n");
-
             return 1;
     }
 }
@@ -107,5 +106,38 @@ void replayGame() {
     // remove the \n from the end of the string
     fileName[strlen(fileName) - 1] = '\0';
 
+    byte boardSize, numberOfPieces;
+    Vector *pieceStartingPositions, *board = NULL, *pieces = NULL, *moves = NULL;
+
+    FILE *file = fopen(fileName, "rb");
+    if (file == NULL) {
+        printf("Failed to open file");
+
+        exit(1);
+    }
+
+    // read the first 2 bytes
+    fread(&boardSize, sizeof(byte), 1, file);
+    fread(&numberOfPieces, sizeof(byte), 1, file);
+
+    pieceStartingPositions = initVector();
+
+    for (int i = 0; i < numberOfPieces; i++) {
+        byte position[2];
+        fread(position, sizeof(byte), 2, file);
+        Coordinate *coordnate = createCoordinate(position[0], position[1]);
+        pieceStartingPositions->push(pieceStartingPositions, coordnate);
+    }
+
+    initializeReplay(boardSize, pieceStartingPositions, &board, &pieces, &moves);
+
+    // printf("%d, %d  ", boardSize, numberOfPieces);
+    // for(int i=0; i < pieceStartingPositions->length;i++) {
+    //     Coordinate* coord = pieceStartingPositions->get(pieceStartingPositions, i);
+    //     printf("x: %d, y:%d     ", coord->x, coord->y);
+    // }
+
     // runReplayMenu(printReplayMenu, executeReplaySelection);
+
+    fclose(file);
 }
