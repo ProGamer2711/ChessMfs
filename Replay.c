@@ -18,7 +18,16 @@ byte calculateSeedLength(byte pieceCount) {
     return 2 + pieceCount * 2;
 }
 
-static void writeMoveToFile(FILE *file, Move *move) {
+byte hasNextMove(FILE* file) {
+    long currentPos = ftell(file);
+    byte buffer[MOVE_SIZE];
+    size_t bytesRead = fread(buffer, sizeof(byte), MOVE_SIZE, file);
+    fseek(file, currentPos, SEEK_SET);  // Reset file position to original
+
+    return bytesRead == MOVE_SIZE;
+}
+
+static void writeMoveToFile(FILE* file, Move* move) {
     PieceType pieceTakenType = move->pieceTaken == NULL ? 0 : move->pieceTaken->type;
     byte pieceTaken = pieceTakenType;
 
@@ -42,7 +51,7 @@ static void writeMoveToFile(FILE *file, Move *move) {
     }
 }
 
-void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
+void writeReplayToFile(byte* seed, size_t seedLength, Vector* moves) {
     getchar();
 
     printf("Where do you want to store your replay?\n> ");
@@ -53,7 +62,7 @@ void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
     // remove the \n from the end of the string
     fileName[strlen(fileName) - 1] = '\0';
 
-    FILE *file = fopen(fileName, "wb");
+    FILE* file = fopen(fileName, "wb");
 
     if (file == NULL) {
         printf("Failed to open file");
@@ -76,7 +85,7 @@ void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves) {
 }
 
 void freeReplayArgument(Vector* replayArgument) {
-    for(byte i = 0; i < replayArgument->length; i++) {
+    for (byte i = 0; i < replayArgument->length; i++) {
         free(replayArgument->get(replayArgument, i));
     }
 
@@ -89,9 +98,30 @@ void freeReplayArguments(Vector* board, Vector* pieces, Vector* moves) {
     freeReplayArgument(moves);
 }
 
+static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
+    if (!hasNextMove(file)) {
+        printf("No more moves to read\n");
+        waitForEnter();
+
+        return;
+    }
+
+    byte position[2];
+    fread(position, sizeof(byte), 2, file);
+    Tile* tile = getTileFromBoard(board, position[0], position[1]);
+
+    fread(position, sizeof(byte), 2, file);
+    Coordinate endCoordinate = {position[0], position[1]};
+
+    // Skip the piece taken byte
+    fseek(file, 1, SEEK_CUR);
+
+    makeMove(moves, board, tile->piece, endCoordinate);
+}
+
 static byte executeReplaySelection(byte selection, FILE* file, Vector* pieceStartingPositions, Vector** board, Vector** pieces, Vector** moves) {
     switch (selection) {
-        case 1:
+        case 1: {
             byte offset = calculateSeedLength((*pieces)->length), boardSize = (*board)->length;
 
             fseek(file, offset, SEEK_SET);
@@ -100,30 +130,23 @@ static byte executeReplaySelection(byte selection, FILE* file, Vector* pieceStar
 
             initializeReplay(boardSize, pieceStartingPositions, board, pieces, moves);
 
-            return 1;
+            break;
+        }
         case 2:
-            return 1;
+            break;
         case 3:
-            byte position[2];
-            fread(position, sizeof(byte), 2, file);
-            Tile* tile = getTileFromBoard(*board, position[0], position[1]);
-
-            fread(position, sizeof(byte), 2, file);
-            Coordinate endCoordinate = { position[0], position[1] };
-
-            fseek(file, 1, SEEK_CUR);
-
-            makeMove(*moves, *board, tile->piece, endCoordinate);
-
-            return 1;
+            goOneMoveForward(file, *board, *moves);
+            break;
         case 4:
-            return 1;
+            break;
         case 5:
             return 0;
         default:
             printf("Invalid selection\n");
-            return 1;
+            break;
     }
+
+    return 1;
 }
 
 void replayGame() {
@@ -142,7 +165,7 @@ void replayGame() {
     byte boardSize, numberOfPieces;
     Vector *pieceStartingPositions, *board = NULL, *pieces = NULL, *moves = NULL;
 
-    FILE *file = fopen(fileName, "rb");
+    FILE* file = fopen(fileName, "rb");
     if (file == NULL) {
         printf("Failed to open file");
 
@@ -158,7 +181,7 @@ void replayGame() {
     for (byte i = 0; i < numberOfPieces; i++) {
         byte position[2];
         fread(position, sizeof(byte), 2, file);
-        Coordinate *coordinate = createCoordinate(position[0], position[1]);
+        Coordinate* coordinate = createCoordinate(position[0], position[1]);
         pieceStartingPositions->push(pieceStartingPositions, coordinate);
     }
 

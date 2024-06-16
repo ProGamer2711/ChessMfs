@@ -164,9 +164,6 @@ static void printBoardAsSimplifiedTable(Vector *board) {
 }
 
 void printBoard(Vector *board) {
-    // ! add this back later
-    // clearScreen();
-
     printf("You play as white\n");
     printf("White pieces have uppercase letters\n");
     printf("Black pieces have lowercase letters\n");

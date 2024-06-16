@@ -5,6 +5,8 @@
 
 byte calculateSeedLength(byte pieceCount);
 
+byte hasNextMove(FILE *file);
+
 void writeReplayToFile(byte *seed, size_t seedLength, Vector *moves);
 
 void replayGame();
