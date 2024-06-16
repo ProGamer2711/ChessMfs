@@ -3,7 +3,7 @@
 #include "Chess.h"
 #include "Constants.h"
 
-#define MOVE_SIZE 5
+#define MOVE_SIZE 4
 
 byte calculateSeedLength(byte pieceCount);
 

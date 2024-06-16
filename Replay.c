@@ -26,19 +26,14 @@ byte hasNextMove(FILE* file) {
 }
 
 static void writeMoveToFile(FILE* file, Move* move) {
-    PieceType pieceTakenType = move->pieceTaken == NULL ? 0 : move->pieceTaken->type;
-    byte pieceTaken = pieceTakenType;
-
-    // a move can be represented by 5 bytes
+    // a move can be represented by 4 bytes
     // 2 bytes for the start position
     // 2 bytes for the end position
-    // 1 byte for the piece taken (the byte 0 if no piece was taken)
     byte moveBytes[MOVE_SIZE] = {
         move->start.x,
         move->start.y,
         move->end.x,
         move->end.y,
-        pieceTaken,
     };
 
     if (fwrite(moveBytes, sizeof(byte), MOVE_SIZE, file) != MOVE_SIZE) {
@@ -129,9 +124,6 @@ static void goOneMoveForward(FILE* file, Vector* board, Vector* moves) {
 
     fread(position, sizeof(byte), 2, file);
     Coordinate endCoordinate = {position[0], position[1]};
-
-    // Skip the piece taken byte
-    fseek(file, 1, SEEK_CUR);
 
     makeMove(moves, board, tile->piece, endCoordinate);
 }
