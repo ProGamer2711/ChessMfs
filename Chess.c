@@ -714,6 +714,8 @@ void runChessGame(byte boardSize) {
 
             printStatistics(moves, pieces, blackInCheckCounter);
 
+            getchar();
+
             printf("\nDo you want to save the replay? [y/n]\n> ");
             char saveReplay;
             scanf("%c", &saveReplay);
