@@ -613,12 +613,9 @@ void runChessGame(byte boardSize) {
 
     Vector *pieces = initVector();
 
-    pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 1));
-    pieces->push(pieces, createPiece(board, 0, 0, ROOK_2, 1));
-    // ! for testing purposes
-    // pieces->push(pieces, createPiece(board, 0, 0, ROOK_1, 0));
-    pieces->push(pieces, createPiece(board, 0, 0, KING, 0));
-    pieces->push(pieces, createPiece(board, 0, 0, KING, 1));
+    for (byte i = 0; i < PIECE_COUNT; i++) {
+        pieces->push(pieces, createPiece(board, 0, 0, pieceTypes[i], isWhite[i]));
+    }
 
     byte *seed = placePiecesRandomly(board, pieces);
 
@@ -640,7 +637,15 @@ void runChessGame(byte boardSize) {
         if (isInCheckmate(pieces, blackKing, board) || isInCheckmate(pieces, whiteKing, board)) {
             printf("Game over: Checkmate\n");
 
-            writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
+            getchar();
+
+            printf("Do you want to save the replay? [y/n]\n> ");
+            char saveReplay;
+            scanf("%c", &saveReplay);
+
+            if (saveReplay == 'y' || saveReplay == 'Y') {
+                writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
+            }
 
             break;
         }
@@ -652,7 +657,15 @@ void runChessGame(byte boardSize) {
         if ((isInStalemate(pieces, blackKing, board) && !playerTurn) || (isInStalemate(pieces, whiteKing, board) && playerTurn)) {
             printf("Game over: Stalemate\n");
 
-            writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
+            getchar();
+
+            printf("Do you want to save the replay? [y/n]\n> ");
+            char saveReplay;
+            scanf("%c", &saveReplay);
+
+            if (saveReplay == 'y' || saveReplay == 'Y') {
+                writeReplayToFile(seed, calculateSeedLength(pieces->length), moves);
+            }
 
             break;
         }
@@ -707,10 +720,6 @@ void initializeReplay(byte boardSize, Vector *pieceStartPositions, Vector **boar
     Vector *board = createBoard(boardSize);
 
     Vector *pieces = initVector();
-
-    // Our current order is white rook 1, white rook 2, black king, white king
-    PieceType pieceTypes[] = {ROOK_1, ROOK_2, KING, KING};
-    byte isWhite[] = {1, 1, 0, 1};
 
     for (byte i = 0; i < pieceStartPositions->length; i++) {
         Coordinate *currentCoordinate = pieceStartPositions->get(pieceStartPositions, i);

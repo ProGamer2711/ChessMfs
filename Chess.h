@@ -8,6 +8,9 @@
 // Could be any size but the best experience is up to 50
 #define MAX_BOARD_SIZE 50
 
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 typedef struct Coordinate {
     byte x;
     byte y;
@@ -46,8 +49,12 @@ typedef struct Move {
     Piece* pieceTaken;
 } Move;
 
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define PIECE_COUNT 4
+
+// Our current order of placement:
+// white rook 1, white rook 2, black king, white king
+PieceType pieceTypes[PIECE_COUNT] = {ROOK_1, ROOK_2, KING, KING};
+byte isWhite[PIECE_COUNT] = {1, 1, 0, 1};
 
 Coordinate* createCoordinate(byte x, byte y);
 
